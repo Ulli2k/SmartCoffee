@@ -1,0 +1,33 @@
+Part,Value,Device,Package,Description,BERKLIN_2,BUERKLIN,BUERKLIN_1,CONRAD,MF,MPN,OC_FARNELL,OC_NEWARK,REICHELT
+C1,0.1µ,CAP0603-CAP,0603-CAP,Capacitor,,53 D 1726,,,,,,,
+C2,0.1µ,CAP0603-CAP,0603-CAP,Capacitor,,53 D 1726,,,,,,,
+C3,4.7µ,CAP0805-CAP,0805-CAP,Capacitor,,53 D 1659,,,,,,,
+C4,0.1µ,CAP0603-CAP,0603-CAP,Capacitor,,53 D 1726,,,,,,,
+C5,0.1µ,CAP0603-CAP,0603-CAP,Capacitor,,53 D 1726,,,,,,,
+C6,0.1µ,CAP0603-CAP,0603-CAP,Capacitor,,53 D 1726,,,,,,,
+D1,1N4148W,DIODE-SOD123,SOD123,DIODE,,26S8142,,,,,,,
+DISPLAY/ROTARY2,PSS254_8GERADE,PSS254_8GERADE,08G,,,,,,,,,,PSS 254/8G
+DS18B20,,PSS254_3GERADE,03G,,,,,,,,,,PSS 254/3G
+HEATER-SSR,,PSS254_2GERADE,02G,,,,,,,,,,PSS 254/2G
+HV_SUPPLY,250-206,250-206,P-250-206,"Serie 250,  1-Leiter-Klemmenleiste für Leiterplatten 1 Lötstift/Pol versetzt / Series 250,  1-conductor PCB terminal strip 1 solder pin/pole, staggeredPolzahl / Pole No.: 6 Rastermaß / Pitch: 3.5 - 3.5  mmBemessungsspannung / Rated Voltage: 320 VNennstrom / Nominal Current: 8 ALeiterquerschnitt / Conductor Size: 0.2 - 1.5 mm2Anschlusstechnik / Connection Technology: CAGE CLAMP® S Lötstiftlänge: / Solder Pin Length: 3.6 mmLeitereinführung (zur Platine) / Conductor entry angle (to PCB): 45 °Farbe / Color: grau / gray Stand: 01.01.2014. Die jeweils aktuellen Daten zu diesem Artikel finden Sie in unserem Produktkatalog, den Sie unter www.wago.com einsehen können.  As of: 01/01/2014. Please find the newest data for this article in our product catalogue, which can be viewed under www.wago.com.",,,,,,,,,WAGO 250-206
+IC1,ULN2003V12DR,ULN2003AD,SO16,DRIVER ARRAY,,,,1187534 - 62,,,,,ULN 2003 AD SMD
+K1,G2R,G2RL-1 DC5,G2R,RELAY,,,,,,,,,G2RL-1 DC5
+LED,,PSS254_2GERADE,02G,,,,,,,,,,PSS 254/2G
+LV_SUPPLY,,PSS254_2GERADE,02G,,,,,,,,,,PSS 254/2G
+OK1,SFH620A,SFH620A,DIL04,"Optocoupler, Phototransistor Output, AC Input",,,,,,SFH620A-2,1469594,97K9546,
+ONOFF,,PSS254_2GERADE,02G,,,,,,,,,,PSS 254/2G
+PIEZO,BUZZER-PIEZO_SMD,BUZZER-PIEZO_SMD,BUZZER-PIEZO_SMD,Piezoelectric Acoustic Transducer,36 M 346,36 M 370,36 M 368,,,,,,
+R1,4k7,RESISTOR0603-RES,0603-RES,Resistor,,26 E 808,,,,,,,
+R3,33,RESISTOR0603-RES,0603-RES,Resistor,,26 E 756,,,,,,,
+R4,22k,RESISTORUPRIGHT,RES_UPRIGHT,Resistor,,,,,,,,,1W 22K
+R5,VARISTOR-S07K275,VARISTOR-S07K275,S07K275,VARISTOR,,82E2252,,,,,,,
+R6,22k,RESISTORUPRIGHT,RES_UPRIGHT,Resistor,,,,,,,,,1W 22K
+R7,4k7,RESISTOR0603-RES,0603-RES,Resistor,,26 E 808,,,,,,,
+R8,VARISTOR-S07K275,VARISTOR-S07K275,S07K275,VARISTOR,,82E2252,,,,,,,
+R13,1k5,RESISTOR0603-RES,0603-RES,Resistor,,26 E 796,,,,,,,
+R16,1k5,RESISTOR0603-RES,0603-RES,Resistor,,26 E 796,,,,,,,
+R18,1k5,RESISTOR0603-RES,0603-RES,Resistor,,26 E 796,,,,,,,
+SUPPLY_SSR1,OMRON-G3MB-202P-SSR,OMRON-G3MB-202P-SSR,OMRON-G3MB-202P-SSR,"IT(rms) 8A, Zero Cross type SIP 4pin Triac output SSR",,,,,,,,,
+SUPPLY_SSR2,OMRON-G3MB-202P-SSR,OMRON-G3MB-202P-SSR,OMRON-G3MB-202P-SSR,"IT(rms) 8A, Zero Cross type SIP 4pin Triac output SSR",,,,,,,,,
+TSIC,,PSS254_3GERADE,03G,,,,,,,,,,PSS 254/3G
+U$3,ESP32DEVKITC,ESP32DEVKITC,ESP32-DEVKITC,,,,,,,,,,
