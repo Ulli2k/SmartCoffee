@@ -40,7 +40,7 @@ struct structConfigValues {
 } configValues;
 
 
-
+#ifdef ESP32
 #define EEPROM_SIZE     1024
 
 void getConfiguration() {
@@ -77,4 +77,10 @@ void removeConfiguration() {
   EEPROM.put(0, configValues);
   EEPROM.commit();
 }
+#else
+void getConfiguration() {}
+void saveConfiguration() {}
+void removeConfiguration() {}
+#endif
+
 #endif

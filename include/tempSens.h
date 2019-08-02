@@ -19,6 +19,7 @@
 #ifdef ESP32
   #include <ESP32Ticker.h>
 #else
+  #define IRAM_ATTR
   #include <Ticker.h>
 #endif
 

@@ -5,6 +5,9 @@
 #include <ClickEncoder.h>
 #include <Ticker.h>
 
+#ifndef ESP32
+  #define IRAM_ATTR
+#endif
 #define ENCODER_TICKER_MS     1 //[ms]
 #define ENCODER_STEPS         4 //[-]
 

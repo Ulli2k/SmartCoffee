@@ -11,10 +11,14 @@
 #include <EEPROM.h>
 #include <globals.h>
 
+//#define HAS_INTERFACE
+
 /************************/
 /******** Digital Output Pins ********/
 #include <digitalPin.h>
 
+#ifdef ESP32
+//ESP32
 typedef simplePin<2>              LEDType;        // LED
 typedef simplePin<26>             PowerType;      // OnOff
 typedef simplePin<0,false,true>   PowerSensType;  // OnOff Detection
@@ -23,13 +27,28 @@ typedef simplePin<15,false,true>  PumpSensType;   // Bewing Detection
 typedef simplePin<12>             ValveType;      // Valve
 typedef simplePin<13>             HeaterType;     // Heater
 
+#define TEMPERATUR_SENSOR_PIN      32
+#else
+//ESP8266
+typedef simplePin<2>              LEDType;        // LED
+typedef simplePin<15>             PowerType;      // OnOff
+typedef simplePin<16,false,true>  PowerSensType;  // OnOff Detection
+typedef simplePin<13>             PumpType;       // Pump
+typedef simplePin<10,false,true>  PumpSensType;   // Bewing Detection
+typedef simplePin<12>             ValveType;      // Valve
+typedef simplePin<14>             HeaterType;     // Heater
+
+#define TEMPERATUR_SENSOR_PIN      0
+#endif
+
+#ifdef HAS_INTERFACE
 #include <encoder.h>
 typedef ClassEncoder<19, 18, 5>   encoderType;
 
 #include <display.h>
 typedef ClassDisplay              displayType;
+#endif
 
-#define TEMPERATUR_SENSOR_PIN      32
  /************************/
 
 
@@ -72,12 +91,21 @@ ClassPID Pid(/*Pid_SetPoint*/&globalValues.TempSetValue, /*Pid_Input*/&globalVal
 
 /*********************************************************/
 /******** User Interface (Display, RotaryEncoder) ********/
+#include <interface.h>
+
+#ifdef HAS_INTERFACE
 namespace UserInterface {
   encoderType cEncoder;
   displayType cDisplay;
 }
-#include <interface.h>
 typedef UserInterface::ClassMenu    MenuType;       // Display, RotaryEncoder
+#else
+namespace UserInterface {
+  noClassMenu cEncoder;
+  noClassMenu cDisplay;
+}
+typedef UserInterface::noClassMenu    MenuType;       // Display, RotaryEncoder
+#endif
 /*********************************************************/
 
 
@@ -86,7 +114,6 @@ typedef UserInterface::ClassMenu    MenuType;       // Display, RotaryEncoder
 /*******************************/
 #include <statemachine.h>
 ClassStateMachine<MenuType,LEDType,PowerType,PowerSensType,PumpType,PumpSensType,ValveType> StateMachine;
-
 
 //==============================================================
 //                  Web Interface Functions

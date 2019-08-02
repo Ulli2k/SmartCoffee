@@ -55,7 +55,6 @@ private:
   uint8_t _state; //current State of StateMachine
   bool PowerOnOff;
   ClassTiming Timer;
-
   InterfaceType Interface;
   LedType PowerLed;
   PowerType Power;

@@ -1,8 +1,11 @@
 #ifndef __WEB_H__
 #define __WEB_H__
 
-// #include <ESP8266WiFi.h>
+#ifdef ESP32
 #include <WiFi.h>
+#else
+#include <ESP8266WiFi.h>
+#endif
 #include <WiFiClient.h>
 #include <ArduinoOTA.h>
 
