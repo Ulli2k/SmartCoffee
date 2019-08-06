@@ -68,9 +68,9 @@ public:
     if(sensor.checkPlausibility(newValue, (value/100.))) {
       value = (uint16_t)(newValue*100.);
       *curAvgValue = (double)(AvgValue.add(value)/100.);
+      // Serial.print("TempSens: ");Serial.print(newValue); Serial.print(" oldValue ");Serial.println((float)(value/100.));
     } else {
-      Serial.print("TempSens value skipped: ");Serial.print(newValue);
-      Serial.print(" oldValue ");Serial.println((float)(value/100.));
+      Serial.print("TempSens value skipped: ");Serial.print(newValue);Serial.print(" oldValue ");Serial.println((float)(value/100.));
     }
   }
 

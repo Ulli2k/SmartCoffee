@@ -2,23 +2,7 @@
 #ifndef __MENU_H__
 #define __MENU_H__
 
-#ifndef HAS_INTERFACE
-#include <encoder.h>
-
-namespace UserInterface {
-
-class noClassMenu {
-public:
-  void initialize() { }
-  enum EncoderEvent poll() {}
-  void flush() {}
-  void activateTextScreen(const char* header, char *text) { }
-  void activateValueScreen(const char* header, double *value = NULL, const char *unit = NULL, double *setpoint = NULL, double *percent = NULL) { }
-  void activateConfigScreen() {}
-};
-}
-
-#else
+#ifdef HAS_INTERFACE
 
 #include <encoder.h>
 #include <display.h>
@@ -373,5 +357,24 @@ namespace UserInterface {
 
   bool ClassMenu::exitConfigMenu = false; //static variable
 }
+
+#else
+
+#include <encoder.h>
+
+namespace UserInterface {
+
+class noClassMenu {
+public:
+  void initialize() { }
+  enum EncoderEvent poll() {}
+  void flush() {}
+  void activateTextScreen(const char* header, char *text) { }
+  void activateValueScreen(const char* header, double *value = NULL, const char *unit = NULL, double *setpoint = NULL, double *percent = NULL) { }
+  void activateConfigScreen() {}
+};
+}
+
 #endif
+
 #endif

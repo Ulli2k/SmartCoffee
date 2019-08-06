@@ -5,6 +5,10 @@
 #include <Wire.h>
 #include <U8g2lib.h>
 
+#define DISPLAY_NO_ROTATION       U8G2_R0
+#define DISPLAY_90_ROTATION       U8G2_R1
+#define DISPLAY_180_ROTATION      U8G2_R2
+#define DISPLAY_270_ROTATION      U8G2_R3
 /******************************************** Display ********************************************/
 // Wiki: https://github.com/olikraus/u8g2/wiki/u8g2reference#setfont
 // Bilder einfügen https://sandhansblog.wordpress.com/2017/04/16/interfacing-displaying-a-custom-graphic-on-an-0-96-i2c-oled/
@@ -20,7 +24,7 @@
     const uint8_t *fontName;
 
     // const struct fontname;  //https://github.com/olikraus/u8g2/wiki/fntlistall
-  	ClassDisplay() : u8g2(U8G2_R0), width(128), height(64) {
+  	ClassDisplay() : u8g2(DISPLAY_180_ROTATION), width(128), height(64) {
       setFontSize();
     }
 

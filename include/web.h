@@ -18,17 +18,34 @@ class ClassWiFi {
 private:
 
 public:
-  void connect2WLAN(const char* ssid, const char* password) {
-    WiFi.begin(ssid, password);     //Connect to your WiFi router
-    // wifi_station_set_hostname(DEVICENAME);
+  bool connect2WLAN(const char* ssid, const char* password) {
+    uint8_t wifi_retry=0;
+    uint8_t wifi_wait=0;
 
-    Serial.print("Connecting to "); Serial.print(ssid);
-    while (!isConnected()) {
-      // Wait for connection
+    while (!isConnected() && wifi_retry < 2) {
+      wifi_wait=0;
+      wifi_retry++;
+      Serial.print("Connecting to "); Serial.print(ssid);
+      WiFi.disconnect();
+      WiFi.mode(WIFI_OFF);
+      WiFi.mode(WIFI_STA);
       delay(500);
-      Serial.print(".");
+      WiFi.begin(ssid, password);     //Connect to your WiFi router
+      while (!isConnected() && wifi_wait < 5) {
+        wifi_wait++;
+        // Wait for connection
+        delay(500);
+        Serial.print(".");
+      }
+      Serial.println();
     }
-    Serial.print(".successful with IP address "); Serial.println(getIP());
+    if(isConnected()) {
+      Serial.print("WiFi IP address "); Serial.println(getIP());
+      return true;
+    } else {
+      Serial.println("WiFi failed, proceed offline.");
+      return false;
+    }
   }
 
   bool isConnected() {
@@ -94,7 +111,8 @@ class ClassWeb : public ClassWiFi, public ClassOTA, public ClassWebMessages {
 
     void initialize() {
 
-      connect2WLAN(ssid, password);
+      if(!connect2WLAN(ssid, password)) return;
+
       publishOTA();
 
       // if(type == WEBPAGE) {
@@ -105,6 +123,7 @@ class ClassWeb : public ClassWiFi, public ClassOTA, public ClassWebMessages {
     }
 
     void poll() {
+      if(!isConnected()) return;
       pollOTA();
       web.poll();
     }

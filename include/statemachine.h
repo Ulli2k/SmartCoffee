@@ -11,7 +11,7 @@
 
 #define SUPPLY_TEMP_SETPOINT_INCREASE             35 // [°C], ggf. gleich PID_GAP_4_BOOST_PARAMETER ??
 #define SUPPLY_DURATION                           30 // [s]
-#define PREINFUSION_DURATION                      10 // [s]
+#define PREINFUSION_DURATION                       5 // [s]
 #define PREINFUSION_PUMP_DURATION                  3 // [s]
 #define FLUSH_DURATION                             3 // [s]
 

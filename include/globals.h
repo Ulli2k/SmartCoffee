@@ -78,9 +78,9 @@ void removeConfiguration() {
   EEPROM.commit();
 }
 #else
-void getConfiguration() {}
-void saveConfiguration() {}
-void removeConfiguration() {}
+  void getConfiguration() {}
+  void saveConfiguration() {}
+  void removeConfiguration() {}
 #endif
 
 #endif

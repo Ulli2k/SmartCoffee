@@ -11,7 +11,7 @@
 #include <EEPROM.h>
 #include <globals.h>
 
-//#define HAS_INTERFACE
+#define HAS_INTERFACE
 
 /************************/
 /******** Digital Output Pins ********/
@@ -41,13 +41,13 @@ typedef simplePin<14>             HeaterType;     // Heater
 #define TEMPERATUR_SENSOR_PIN      0
 #endif
 
-#ifdef HAS_INTERFACE
+// #ifdef HAS_INTERFACE
 #include <encoder.h>
 typedef ClassEncoder<19, 18, 5>   encoderType;
 
 #include <display.h>
 typedef ClassDisplay              displayType;
-#endif
+// #endif
 
  /************************/
 
@@ -91,19 +91,19 @@ ClassPID Pid(/*Pid_SetPoint*/&globalValues.TempSetValue, /*Pid_Input*/&globalVal
 
 /*********************************************************/
 /******** User Interface (Display, RotaryEncoder) ********/
-#include <interface.h>
-
 #ifdef HAS_INTERFACE
 namespace UserInterface {
   encoderType cEncoder;
   displayType cDisplay;
-}
+};
+#include <interface.h>
 typedef UserInterface::ClassMenu    MenuType;       // Display, RotaryEncoder
 #else
 namespace UserInterface {
   noClassMenu cEncoder;
   noClassMenu cDisplay;
 }
+#include <interface.h>
 typedef UserInterface::noClassMenu    MenuType;       // Display, RotaryEncoder
 #endif
 /*********************************************************/
