@@ -30,11 +30,11 @@ struct structConfigValues {
   struct {
     uint8_t TempMinError;
     uint8_t TempStabilizingTime;
-    uint8_t Preinfusion_Duration;
-    uint8_t Preinfusion_PumpDuration;
-    uint8_t Brewing_Duration;
+    double Preinfusion_Duration;
+    double Preinfusion_PumpDuration;
+    double Brewing_Duration;
     uint8_t BrewingTempSetpointIncrease;
-    uint8_t Flush_Duration;
+    double Flush_Duration;
   } stateMaschine;
 
 } configValues;

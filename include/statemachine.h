@@ -10,9 +10,9 @@
 #define TEMP_MIN_ERROR                             2 // [°C]
 
 #define SUPPLY_TEMP_SETPOINT_INCREASE             35 // [°C], ggf. gleich PID_GAP_4_BOOST_PARAMETER ??
-#define SUPPLY_DURATION                           30 // [s]
-#define PREINFUSION_DURATION                       5 // [s]
-#define PREINFUSION_PUMP_DURATION                  3 // [s]
+#define SUPPLY_DURATION                           29 // [s]
+#define PREINFUSION_DURATION                     3.4 // [s]
+#define PREINFUSION_PUMP_DURATION                2.6 // [s]
 #define FLUSH_DURATION                             3 // [s]
 
 enum State {
@@ -22,6 +22,7 @@ enum State {
   READY,
   SUPPLY,
   PREINFUSION,
+  PREINFUSION_WAIT,
   BREWING,
   DONE,
   FLUSH
@@ -30,20 +31,27 @@ enum State {
 class ClassTiming {
   unsigned long ms;
   unsigned long time_ms;
+  bool active;
 public:
+  ClassTiming() : active(0), ms(0), time_ms(0) {}
   double leftSeconds;
   double setSeconds;
   double percent;
-  void startTimer(uint8_t sec) {
+  void startTimer(double sec) {
     setSeconds = sec;
     ms = millis();
+    active=true;
   }
   bool checking() {
     long delta = (millis()-ms)/1000;
 
     leftSeconds = (double)(setSeconds-delta);
     percent = (double)(leftSeconds/(double)setSeconds);
-    return (leftSeconds > 0 ? false : true);
+    active = (leftSeconds > 0);
+    return !active;
+  }
+  bool isActive() {
+    return active;
   }
 };
 
@@ -125,9 +133,11 @@ public:
 
       case HEATING:
         if((globalValues.TempSetValue - globalValues.TempValue) <= configValues.stateMaschine.TempMinError) {
-          // if(Timer.checking()) {
-            newState=READY;
-          // }
+          if(!Timer.isActive()) {
+            Timer.startTimer(configValues.stateMaschine.TempStabilizingTime);
+          } else {
+            if(Timer.checking())      { newState=READY; }
+          }
         }
         if(PumpSens.isActive()) { newState=SUPPLY; }
         break;
@@ -142,6 +152,11 @@ public:
         break;
 
       case PREINFUSION:
+        if(Timer.checking())      { newState=PREINFUSION_WAIT; }
+        if(!PumpSens.isActive())  { newState=HEATING; }
+        break;
+
+      case PREINFUSION_WAIT:
         if(Timer.checking())      { newState=BREWING; }
         if(!PumpSens.isActive())  { newState=HEATING; }
         break;
@@ -157,7 +172,8 @@ public:
         break;
 
       case FLUSH:
-        if(!PumpSens.isActive()) { newState=HEATING; }
+        if(Timer.checking())      { newState=HEATING; }
+        if(!PumpSens.isActive())  { newState=HEATING; }
         break;
     }
 
@@ -193,8 +209,9 @@ public:
 
       case HEATING:
         Serial.println("HEATING");
+        Pump.setState(0);
+        Valve.setState(0);
         if(_state != STARTUP) { globalValues.TempSetValue -= configValues.stateMaschine.BrewingTempSetpointIncrease; }
-        // Timer.startTimer(configValues.stateMaschine.TempStabilizingTime);
         Interface.activateValueScreen("Heating", &globalValues.TempValue, "degC",&globalValues.TempSetValue, &globalValues.Pid_Percent);
         break;
 
@@ -211,13 +228,18 @@ public:
       case PREINFUSION:
         Serial.println("PREINFUSION");
         Interface.activateValueScreen("Preinfusion...");
-        Interface.flush();
+        // Interface.flush();
         Valve.setState(1);
         Pump.setState(1);
-        delay(configValues.stateMaschine.Preinfusion_PumpDuration*1000);
+        Timer.startTimer(configValues.stateMaschine.Preinfusion_PumpDuration);
+        // delay(configValues.stateMaschine.Preinfusion_PumpDuration*1000);
+        break;
+
+      case PREINFUSION_WAIT:
+        Serial.println("PREINFUSION_WAIT");
         Pump.setState(0);
-        Timer.startTimer(configValues.stateMaschine.Preinfusion_Duration);
         Interface.activateValueScreen("Preinfusion...", &Timer.leftSeconds, "sec", &Timer.setSeconds, &Timer.percent);
+        Timer.startTimer(configValues.stateMaschine.Preinfusion_Duration);
         break;
 
       case BREWING:
@@ -238,13 +260,14 @@ public:
       case FLUSH:
         Serial.println("FLUSH");
         Interface.activateTextScreen("Flushing...", "!! HOT !!");
-        Interface.flush();
+        // Interface.flush();
+        Timer.startTimer(configValues.stateMaschine.Flush_Duration);
         Valve.setState(1);
         Pump.setState(1);
-        delay(configValues.stateMaschine.Flush_Duration*1000);
-        Pump.setState(0);
-        Valve.setState(0);
-        Interface.activateTextScreen("Flushing...", "done!");
+        // delay(configValues.stateMaschine.Flush_Duration*1000);
+        // Pump.setState(0);
+        // Valve.setState(0);
+        // Interface.activateTextScreen("Flushing...", "done!");
     }
 
     _state = newState;

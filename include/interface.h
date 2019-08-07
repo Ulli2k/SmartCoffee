@@ -217,6 +217,7 @@ namespace UserInterface {
 
   	void initialize() {
       cDisplay.initialize();
+      activateTextScreen("Servus!","booting...");flush();
       cEncoder.initialize();
 
       // nav.idleTask=idle;//point a function to be used when menu is suspended
