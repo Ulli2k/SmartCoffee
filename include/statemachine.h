@@ -7,12 +7,12 @@
 #define DEFAULT_BREWING_TEMPERATURE               92  //[°C] 92
 
 #define TEMP_STABELIZING_TIME                     10 // [seconds]
-#define TEMP_MIN_ERROR                             2 // [°C]
+#define TEMP_MIN_ERROR                             1 // [°C]
 
-#define SUPPLY_TEMP_SETPOINT_INCREASE             35 // [°C], ggf. gleich PID_GAP_4_BOOST_PARAMETER ??
-#define SUPPLY_DURATION                           29 // [s]
+#define SUPPLY_TEMP_SETPOINT_INCREASE             31 // [°C], ggf. gleich PID_GAP_4_BOOST_PARAMETER ??
+#define SUPPLY_DURATION                           26 // [s]
 #define PREINFUSION_DURATION                     3.4 // [s]
-#define PREINFUSION_PUMP_DURATION                2.6 // [s]
+#define PREINFUSION_PUMP_DURATION                1.6 // [s]
 #define FLUSH_DURATION                             3 // [s]
 
 enum State {
@@ -132,18 +132,20 @@ public:
         break;
 
       case HEATING:
-        if((globalValues.TempSetValue - globalValues.TempValue) <= configValues.stateMaschine.TempMinError) {
+        if(abs(globalValues.TempSetValue - globalValues.TempValue) <= configValues.stateMaschine.TempMinError) {
           if(!Timer.isActive()) {
             Timer.startTimer(configValues.stateMaschine.TempStabilizingTime);
           } else {
             if(Timer.checking())      { newState=READY; }
           }
         }
-        if(PumpSens.isActive()) { newState=SUPPLY; }
+        if(PumpSens.isActive())     { newState=SUPPLY; }
+        if(event == BUTTON_PRESSED) { newState=FLUSH; }
         break;
 
       case READY:
-        if(PumpSens.isActive()) { newState=SUPPLY; }
+        if(PumpSens.isActive())     { newState=SUPPLY; }
+        if(event == BUTTON_PRESSED) { newState=FLUSH; }
         break;
 
       case SUPPLY:
@@ -173,7 +175,7 @@ public:
 
       case FLUSH:
         if(Timer.checking())      { newState=HEATING; }
-        if(!PumpSens.isActive())  { newState=HEATING; }
+        //if(!PumpSens.isActive())  { newState=HEATING; }
         break;
     }
 
