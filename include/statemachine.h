@@ -369,11 +369,10 @@ public:
     _state = newState;
   }
 
-  // void PowerSwitch(bool on) {
-  //   Power.setState(1);
-  //   delay(1000);
-  //   Power.setState(0);
-  // }
+  void PowerSwitch(bool on) {
+    // Serial.print("Remote Power ");Serial.println(on ? "on" : "off");
+    changeState(on ? STARTUP : STANDBY);
+  }
 
   // void startBrewing() {
   //   changeState(SUPPLY);

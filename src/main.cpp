@@ -122,9 +122,9 @@ ClassStateMachine<MenuType,LEDType,PowerType,PowerSensType,PumpType,PumpSensType
 #define HAS_WEB
 #ifdef HAS_WEB
 #include <web.h>
-//typedef ClassWebServer WebConnection;
+typedef ClassWebServer WebConnection;
 // typedef ClassMQTT WebConnection;
-ClassWeb<noWeb> Web;
+ClassWeb</*noWeb*/WebConnection> Web;
 
 // String getValueForInterface(String name) {
 //
@@ -147,11 +147,11 @@ ClassWeb<noWeb> Web;
 //     }
 // }
 //
-// void setValueByInterface(String name, String value) {
-//   Serial.print("set ");Serial.print(name);Serial.print(" to ");Serial.println(value);
-//
-//   if(name == "OnOff") {
-//     StateMachine.PowerSwitch(true);
+void setValueByInterface(String name, String value) {
+  Serial.print("remote set ");Serial.print(name);Serial.print(" to ");Serial.println(value);
+  if(name == "Power") {
+    StateMachine.PowerSwitch(value == "on" ? true : false);
+  }
 //
 //   } else if(name == "startBrewing") {
 //     StateMachine.startBrewing();
@@ -160,7 +160,7 @@ ClassWeb<noWeb> Web;
 //     configValues.TempSetValue = value.toFloat();
 //     if(configValues.TempSetValue>PID_MAX_SETPOINT) configValues.TempSetValue = PID_MAX_SETPOINT;
 //   }
-// }
+}
 #endif
 
 //==============================================================

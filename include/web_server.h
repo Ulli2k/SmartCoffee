@@ -26,8 +26,10 @@ public:
   void initialize() {
 
     attachQuery("/", std::bind(&ClassWebServer::handleRoot, this));
-    attachQuery("/getValues", std::bind(&ClassWebServer::handleGetValues, this));
-    attachQuery("/setValues", std::bind(&ClassWebServer::handleSetValues, this));
+    attachQuery("/PowerOn", std::bind(&ClassWebServer::handlePowerOn, this));
+    attachQuery("/PowerOff", std::bind(&ClassWebServer::handlePowerOff, this));
+    // attachQuery("/getValues", std::bind(&ClassWebServer::handleGetValues, this));
+    // attachQuery("/setValues", std::bind(&ClassWebServer::handleSetValues, this));
 
     hostWebPages();
     Serial.println("HTTP server started");
@@ -37,39 +39,45 @@ public:
     server.handleClient();          //Handle client requests
   }
 
-  // Web: This routine sis executed when you open its IP in browser
   void handleRoot() {
-    String s = MAIN_page; //Read HTML contents
-    send(200, "text/html", s.c_str()); //Send web page
+    send(200, "text/html", "");
+  }
+  void handlePowerOn() {
+    setValueByInterface("Power","on");
+    send(200, "text/html", "Power set to on");
+  }
+  void handlePowerOff() {
+    setValueByInterface("Power","off");
+    send(200, "text/html", "Power set to off");
   }
 
-  void handleGetValues() {
-
-    String data =   "{"
-                    " \"resetGraph\":\""          + getValueForInterface("resetGraph") + "\""
-                  + ", \"TempSens\":\""           + getValueForInterface("TempSens") + "\""
-                  + ", \"TempAvgSens\":\""        + getValueForInterface("TempAvgSens") + "\""
-                  + ", \"SetPoint\":\""           + getValueForInterface("SetPoint") + "\""
-                  + ", \"PID\":\""                + getValueForInterface("PID") + "\""
-                  + ", \"OnOffState\":\""         + getValueForInterface("OnOffState") + "\""
-                  + ", \"StateMachine\":\""       + getValueForInterface("StateMachine") + "\""
-                  + ", \"BrewingTimer\":\""       + getValueForInterface("BrewingTimer") + "\""
-                    "}";
-
-    send(200, "text/plane", data.c_str()); //Send ADC value only to client ajax request
-  }
-
-  void handleSetValues() {
-    String OnOff          = getQueryArguments("OnOff");
-    String startBrewing   = getQueryArguments("startBrewing");
-    String SetPointValue  = getQueryArguments("SetPoint");
-
-    if(OnOff != "")         setValueByInterface("OnOff", OnOff);
-    if(startBrewing != "")  setValueByInterface("startBrewing", startBrewing);
-    if(SetPointValue != "") setValueByInterface("SetPoint", SetPointValue);
-
-    stayAtQueryPage("/");
-  }
+  // void handleGetValues() {
+  //
+  //   String data =   "{"
+  //                   " \"resetGraph\":\""          + getValueForInterface("resetGraph") + "\""
+  //                 + ", \"TempSens\":\""           + getValueForInterface("TempSens") + "\""
+  //                 + ", \"TempAvgSens\":\""        + getValueForInterface("TempAvgSens") + "\""
+  //                 + ", \"SetPoint\":\""           + getValueForInterface("SetPoint") + "\""
+  //                 + ", \"PID\":\""                + getValueForInterface("PID") + "\""
+  //                 + ", \"OnOffState\":\""         + getValueForInterface("OnOffState") + "\""
+  //                 + ", \"StateMachine\":\""       + getValueForInterface("StateMachine") + "\""
+  //                 + ", \"BrewingTimer\":\""       + getValueForInterface("BrewingTimer") + "\""
+  //                   "}";
+  //
+  //   send(200, "text/plane", data.c_str()); //Send ADC value only to client ajax request
+  // }
+  //
+  // void handleSetValues() {
+  //   String OnOff          = getQueryArguments("OnOff");
+  //   String startBrewing   = getQueryArguments("startBrewing");
+  //   String SetPointValue  = getQueryArguments("SetPoint");
+  //
+  //   if(OnOff != "")         setValueByInterface("OnOff", OnOff);
+  //   if(startBrewing != "")  setValueByInterface("startBrewing", startBrewing);
+  //   if(SetPointValue != "") setValueByInterface("SetPoint", SetPointValue);
+  //
+  //   stayAtQueryPage("/");
+  // }
 
   #ifdef ESP32
   void attachQuery(const String& str, WebServer::THandlerFunction fkn) {
