@@ -6,12 +6,12 @@
 
 enum INTERFACETYPE { MQTT, WEBPAGE };
 
-const char ssid[]     = "Dahoam";
-const char password[] = "04006047790439800059";
+const char ssid[]     = "";
+const char password[] = "";
 
-#define MQTT_BROCKER_IP                "192.168.188.42"
+#define MQTT_BROCKER_IP                 ""
 #define MQTT_PORT                       1883
-#define MQTT_PASSWORD                   "mkTGsSCAZ4Wrzc0E3upo"
+#define MQTT_PASSWORD                   ""
 
 extern String getValueForInterface  (String name);
 extern void   setValueByInterface   (String name, String value);
