@@ -366,7 +366,7 @@ namespace UserInterface {
       forceUpdateScreen = true;
     }
 
-    void activateTextScreen(const char* header, char *text) {
+    void activateTextScreen(const char* header, const char *text) {
       clear();
       strcpy(drawValues.header,header);
       strcpy(drawValues.text,text);

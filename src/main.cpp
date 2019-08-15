@@ -19,13 +19,14 @@
 
 #ifdef ESP32
 //ESP32
-typedef simplePin<2>              LEDType;        // LED
-typedef simplePin<26>             PowerType;      // OnOff
-typedef simplePin<0,false,true>   PowerSensType;  // OnOff Detection
-typedef simplePin<27>             PumpType;       // Pump
-typedef simplePin<15,false,true>  PumpSensType;   // Bewing Detection
-typedef simplePin<12>             ValveType;      // Valve
-typedef simplePin<13>             HeaterType;     // Heater
+typedef simplePin<2>                    LEDType;        // LED
+typedef simplePin<4,true,false,2730,0>  BuzzerType;     // Buzzer
+typedef simplePin<26>                   PowerType;      // OnOff
+typedef simplePin<0,false,true>         PowerSensType;  // OnOff Detection
+typedef simplePin<27>                   PumpType;       // Pump
+typedef simplePin<15,false,true>        PumpSensType;   // Bewing Detection
+typedef simplePin<12>                   ValveType;      // Valve
+typedef simplePin<13>                   HeaterType;     // Heater
 
 #define TEMPERATUR_SENSOR_PIN      32
 #else
@@ -113,7 +114,7 @@ typedef UserInterface::noClassMenu    MenuType;       // Display, RotaryEncoder
 /******** State Machine ********/
 /*******************************/
 #include <statemachine.h>
-ClassStateMachine<MenuType,LEDType,PowerType,PowerSensType,PumpType,PumpSensType,ValveType> StateMachine;
+ClassStateMachine<MenuType,LEDType,BuzzerType,PowerType,PowerSensType,PumpType,PumpSensType,ValveType> StateMachine;
 
 //==============================================================
 //                  Web Interface Functions
@@ -213,5 +214,4 @@ void loop(void){
 #ifdef HAS_WEB
   Web.poll();
 #endif
-
 }

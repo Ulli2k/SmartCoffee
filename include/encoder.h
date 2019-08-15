@@ -82,6 +82,9 @@
             Serial.println("Clicked");
             retVal = ENC_BUTTON_PRESSED;
             break;
+
+          default:
+            break;
         }
       }
 

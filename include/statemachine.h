@@ -33,9 +33,10 @@ enum State {
 };
 
 class ClassTiming {
-  unsigned long ms;
-  unsigned long time_ms;
+  long unsigned int ms;
+  long unsigned int time_ms;
   bool active;
+
 public:
   ClassTiming() : active(0), ms(0), time_ms(0) {}
   double leftSeconds;
@@ -59,7 +60,7 @@ public:
   }
 };
 
-template<typename InterfaceType, typename LedType, typename PowerType,typename PowerSensType,typename PumpType,typename PumpSensType,typename ValveType>
+template<typename InterfaceType, typename LedType, typename BuzzerType, typename PowerType,typename PowerSensType,typename PumpType,typename PumpSensType,typename ValveType>
 class ClassStateMachine {
 
 private:
@@ -70,6 +71,7 @@ private:
   int8_t memory;
   InterfaceType Interface;
   LedType PowerLed;
+  BuzzerType Buzzer;
   PowerType Power;
   PowerSensType PowerSens;
   PumpType Pump;
@@ -107,6 +109,8 @@ public:
 
     // Power LED
     PowerLed.initialize();
+    // Buzzer
+    Buzzer.initialize();
 
     // OnOff Function
     PowerOnOff = false;
@@ -256,6 +260,7 @@ public:
         Power.setState(1);
         globalValues.TempSetValue = configValues.TempSetValue;
         Serial.print("TempSetValue: ");Serial.println(globalValues.TempSetValue);
+        Buzzer.beep(2);
         break;
 
       case HEATING:
@@ -270,6 +275,7 @@ public:
 
       case READY:
         Serial.println("READY");
+        Buzzer.beep(2);
         Interface.activateValueScreen("Ready", &globalValues.TempValue, "degC", &globalValues.TempSetValue, &globalValues.Pid_Percent);
         break;
 

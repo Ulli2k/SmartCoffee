@@ -43,12 +43,12 @@ public:
     send(200, "text/html", "");
   }
   void handlePowerOn() {
-    setValueByInterface("Power","on");
-    send(200, "text/html", "on");
+    setValueByInterface("Power",(const char*)"on");
+    send(200, "text/html", "");
   }
   void handlePowerOff() {
-    setValueByInterface("Power","off");
-    send(200, "text/html", "off");
+    setValueByInterface("Power",(const char*)"off");
+    send(200, "text/html", "");
   }
 
   // void handleGetValues() {
