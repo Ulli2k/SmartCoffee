@@ -44,11 +44,11 @@ public:
   }
   void handlePowerOn() {
     setValueByInterface("Power","on");
-    send(200, "text/html", "Power set to on");
+    send(200, "text/html", "on");
   }
   void handlePowerOff() {
     setValueByInterface("Power","off");
-    send(200, "text/html", "Power set to off");
+    send(200, "text/html", "off");
   }
 
   // void handleGetValues() {
