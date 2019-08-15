@@ -29,7 +29,7 @@ enum State {
   BREWING,
   DONE,
   FLUSH,
-  CLEANING_PREPARE, CLEANING, CLEANING_WAIT, CLEANING_DONE
+  CLEANING_PREPARE, CLEANING, CLEANING_WAIT, CLEANING_FLUSH, CLEANING_DONE
 };
 
 class ClassTiming {
@@ -67,7 +67,7 @@ private:
   uint8_t _state; //current State of StateMachine
   bool PowerOnOff;
   ClassTiming Timer;
-  int8_t counter;
+  int8_t memory;
   InterfaceType Interface;
   LedType PowerLed;
   PowerType Power;
@@ -85,7 +85,7 @@ private:
 
 public:
 
-  ClassStateMachine() : _state(STANDBY), counter(-1) {
+  ClassStateMachine() : _state(STANDBY), memory(0) {
     globalValues.TempSetValue                               = DEFAULT_STANDBY_TEMPERATURE;
     configValues.TempSetValue                               = DEFAULT_BREWING_TEMPERATURE;
     configValues.stateMaschine.TempMinError                 = TEMP_MIN_ERROR;
@@ -195,8 +195,9 @@ public:
         break;
 
       case FLUSH:
+        if(!PumpSens.isActive())    { newState=HEATING; }
         if(Timer.checking())        { newState=HEATING; }
-        //if(!PumpSens.isActive())  { newState=HEATING; }
+        //if(event == BUTTON_PRESSED) { newState=FLUSH; }
         break;
 
       case CLEANING_PREPARE:
@@ -206,17 +207,22 @@ public:
 
       case CLEANING:
         if(!PumpSens.isActive())    { newState=HEATING; }
-        if(Timer.checking())        { newState=CLEANING_WAIT; }
+        if(Timer.checking())        { newState= (memory!=0 ? CLEANING_WAIT : CLEANING_DONE); }
         break;
 
       case CLEANING_WAIT:
         if(!PumpSens.isActive())    { newState=HEATING; }
-        if(Timer.checking())        { newState = (counter!=0 ? CLEANING : CLEANING_DONE); }
+        if(Timer.checking())        { newState=CLEANING; }
+        break;
+
+      case CLEANING_FLUSH:
+        if(!PumpSens.isActive())    { newState=HEATING; }
+        if(Timer.checking())        { newState=CLEANING_DONE; }
         break;
 
       case CLEANING_DONE:
-        if(!PumpSens.isActive())    { newState=FLUSH; }
-        if(event == BUTTON_PRESSED) { newState=HEATING; }
+        if(!PumpSens.isActive())    { newState=HEATING; }
+        if(event == BUTTON_PRESSED) { newState=CLEANING_FLUSH; }
         break;
     }
 
@@ -234,7 +240,7 @@ public:
 
       case STANDBY:
         Serial.println("STANDBY");
-        counter = -1;
+        memory = 0;
         globalValues.TempSetValue = DEFAULT_STANDBY_TEMPERATURE;
         Serial.print("TempSetValue: ");Serial.println(globalValues.TempSetValue);
         Power.setState(0);
@@ -254,10 +260,11 @@ public:
 
       case HEATING:
         Serial.println("HEATING");
-        counter = -1;
+        // memory = 0;
         Pump.setState(0);
         Valve.setState(0);
-        if(_state > STARTUP && _state < DONE) { globalValues.TempSetValue -= configValues.stateMaschine.BrewingTempSetpointIncrease; }
+        if(memory && _state < CLEANING_PREPARE) { globalValues.TempSetValue -= memory;}
+        memory=0;
         Interface.activateValueScreen("Heating", &globalValues.TempValue, "degC",&globalValues.TempSetValue, &globalValues.Pid_Percent);
         break;
 
@@ -268,6 +275,7 @@ public:
 
       case SUPPLY:
         Serial.println("SUPPLY");
+        memory = configValues.stateMaschine.BrewingTempSetpointIncrease;
         globalValues.TempSetValue += configValues.stateMaschine.BrewingTempSetpointIncrease;
         break;
 
@@ -300,18 +308,15 @@ public:
         Serial.println("DONE");
         Pump.setState(0);
         Valve.setState(0);
-        globalValues.TempSetValue -= configValues.stateMaschine.BrewingTempSetpointIncrease;
+        globalValues.TempSetValue -= memory;
+        memory=0;
         Interface.activateTextScreen("Done!", "Flush ???");
         break;
 
       case FLUSH:
         Serial.println("FLUSH");
         Interface.activateTextScreen("Flushing...", "!! HOT !!");
-        if(_state == CLEANING_DONE) {
-          Timer.startTimer(configValues.stateMaschine.Flush_Duration*2);
-        } else {
-          Timer.startTimer(configValues.stateMaschine.Flush_Duration);
-        }
+        Timer.startTimer(configValues.stateMaschine.Flush_Duration);
         Valve.setState(1);
         Pump.setState(1);
         break;
@@ -321,15 +326,19 @@ public:
         Valve.setState(0);
         Pump.setState(0);
         Interface.activateTextScreen("Cleaning...", "preparation...");
-        if(counter==-1) counter = configValues.stateMaschine.Cleaning_NumFlushes;
+        memory = configValues.stateMaschine.Cleaning_NumFlushes;
         break;
 
       case CLEANING:
         Serial.println("CLEANING_PREPARE");
-        Timer.startTimer(configValues.stateMaschine.Cleaning_FlushDuration);
+        if(memory == configValues.stateMaschine.Cleaning_NumFlushes) { //fillup chamber
+          Timer.startTimer(configValues.stateMaschine.Cleaning_FlushDuration*2);
+        } else {
+          Timer.startTimer(configValues.stateMaschine.Cleaning_FlushDuration);
+        }
         Valve.setState(1);
         Pump.setState(1);
-        counter--;
+        memory--;
         Interface.activateTextScreen("Cleaning...", "!! HOT !!");
         break;
 
@@ -341,11 +350,19 @@ public:
         Interface.activateValueScreen("Cleaning...", &Timer.leftSeconds, "sec", &Timer.setSeconds, &Timer.percent);
         break;
 
+      case CLEANING_FLUSH:
+        Serial.println("CLEANING_FLUSH");
+        Interface.activateTextScreen("Cleaning...", "!! HOT !!");
+        Timer.startTimer(configValues.stateMaschine.Flush_Duration*2);
+        Valve.setState(1);
+        Pump.setState(1);
+        break;
+
       case CLEANING_DONE:
         Serial.println("CLEANING_DONE");
         Valve.setState(0);
         Pump.setState(0);
-        Interface.activateTextScreen("Cleaning...", "Done!");
+        Interface.activateTextScreen("Cleaning...", "Done...Flush!");
         break;
     }
 

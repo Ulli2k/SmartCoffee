@@ -37,7 +37,10 @@ namespace UserInterface {
     // {{1,1},{1,0,0}},//titleColor
   };
 
-  MENU(subMenu_PID,"PID",doNothing,anyEvent,noStyle
+  MENU(subMenu_TempCtl,"TempControl",doNothing,anyEvent,noStyle
+    ,FIELD(globalValues.TempSetValue,"Temperature","C",0,100,1,0,doNothing,noEvent,wrapStyle)
+    ,FIELD(configValues.stateMaschine.TempMinError,"TempThreshold","C",0,20,1,0,doNothing,noEvent,wrapStyle)
+    ,FIELD(configValues.stateMaschine.TempStabilizingTime,"TempStabilize","s",0,200,1,0,doNothing,noEvent,wrapStyle)
     ,FIELD(configValues.PID.consKp,"Kp","",0,300,1,1,doNothing,noEvent,wrapStyle)
     ,FIELD(configValues.PID.consKi,"Ki","",0,10,0.1,0.01,doNothing,noEvent,wrapStyle)
     ,FIELD(configValues.PID.consKd,"Kd","",0,10,0.1,0.01,doNothing,noEvent,wrapStyle)
@@ -48,14 +51,21 @@ namespace UserInterface {
     ,EXIT("<Back")
   );
 
-  MENU(subMenu_StateMaschine,"StateMaschine",doNothing,anyEvent,noStyle
-    ,FIELD(configValues.stateMaschine.TempMinError,"TempThreshold","C",0,20,1,0,doNothing,noEvent,wrapStyle)
-    ,FIELD(configValues.stateMaschine.TempStabilizingTime,"Stabilize","s",0,200,1,0,doNothing,noEvent,wrapStyle)
+  MENU(subMenu_Preinfusion,"Preinfusion",doNothing,anyEvent,noStyle
     ,FIELD(configValues.stateMaschine.Preinfusion_Duration,"Preinfusion","s",0,60,1,0.1,doNothing,noEvent,wrapStyle)
     ,FIELD(configValues.stateMaschine.Preinfusion_PumpDuration,"Preinf.Pump","s",0,10,1,0.1,doNothing,noEvent,wrapStyle)
+    ,EXIT("<Back")
+  );
+
+  MENU(subMenu_Brewing,"Brewing",doNothing,anyEvent,noStyle
     ,FIELD(configValues.stateMaschine.Brewing_Duration,"Brewing","s",0,60,1,0.1,doNothing,noEvent,wrapStyle)
     ,FIELD(configValues.stateMaschine.BrewingTempSetpointIncrease,"BrewingInc","C",0,100,1,0,doNothing,noEvent,wrapStyle)
     ,FIELD(configValues.stateMaschine.Flush_Duration,"Flush","s",0,20,1,0.1,doNothing,noEvent,wrapStyle)
+    ,EXIT("<Back")
+  );
+
+  MENU(subMenu_Cleaning,"Cleaning",doNothing,anyEvent,noStyle
+    ,OP("Start Cleaning",cleaning,enterEvent)
     ,FIELD(configValues.stateMaschine.Cleaning_WaitDuration,"CleanWait","s",1,120,1,0,doNothing,noEvent,wrapStyle)
     ,FIELD(configValues.stateMaschine.Cleaning_FlushDuration,"CleanFlush","s",1,10,1,0.1,doNothing,noEvent,wrapStyle)
     ,FIELD(configValues.stateMaschine.Cleaning_NumFlushes,"CleanFlushNum","",1,10,1,0,doNothing,noEvent,wrapStyle)
@@ -63,13 +73,13 @@ namespace UserInterface {
   );
 
   MENU(mainMenu,"Configuration",doNothing,noEvent,wrapStyle
-    ,OP("Cleaning        ",cleaning,enterEvent)
-    ,FIELD(globalValues.TempSetValue,"Temperature","C",0,100,1,0,doNothing,noEvent,wrapStyle)
-    ,SUBMENU(subMenu_PID)
-    ,SUBMENU(subMenu_StateMaschine)
+    ,SUBMENU(subMenu_TempCtl)
+    ,SUBMENU(subMenu_Preinfusion)
+    ,SUBMENU(subMenu_Brewing)
+    ,SUBMENU(subMenu_Cleaning)
+    ,OP("reboot",rebootESP,enterEvent)
     ,OP("save Config",saveConfiguration,enterEvent)
     ,OP("reset Config",removeConfiguration,enterEvent)
-    ,OP("reboot",rebootESP,enterEvent)
     ,OP("<Back", exitMenu,enterEvent)
   );
 
