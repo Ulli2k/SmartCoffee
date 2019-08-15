@@ -56,6 +56,9 @@ namespace UserInterface {
     ,FIELD(configValues.stateMaschine.Brewing_Duration,"Brewing","s",0,60,1,0.1,doNothing,noEvent,wrapStyle)
     ,FIELD(configValues.stateMaschine.BrewingTempSetpointIncrease,"BrewingInc","C",0,100,1,0,doNothing,noEvent,wrapStyle)
     ,FIELD(configValues.stateMaschine.Flush_Duration,"Flush","s",0,20,1,0.1,doNothing,noEvent,wrapStyle)
+    ,FIELD(configValues.stateMaschine.Cleaning_WaitDuration,"CleanWait","s",1,120,1,0,doNothing,noEvent,wrapStyle)
+    ,FIELD(configValues.stateMaschine.Cleaning_FlushDuration,"CleanFlush","s",1,10,1,0.1,doNothing,noEvent,wrapStyle)
+    ,FIELD(configValues.stateMaschine.Cleaning_NumFlushes,"CleanFlushNum","",1,10,1,0,doNothing,noEvent,wrapStyle)
     ,EXIT("<Back")
   );
 
@@ -230,11 +233,11 @@ namespace UserInterface {
 
   private:
     InterfaceScreen screen;
-    bool forceUpdateScreen;
 
   public:
 	  ClassMenu()  {}
-    static bool exitConfigMenu;
+    static MenuFunctions ConfigMenuFkt;
+    static bool forceUpdateScreen;
 
   	void initialize() {
       cDisplay.initialize();
@@ -247,7 +250,7 @@ namespace UserInterface {
       // nav.idleTask=idle;//point a function to be used when menu is suspended
       screen = CONFIG;
       forceUpdateScreen = true;
-      exitConfigMenu = false;
+      ConfigMenuFkt = NOTHING;
     }
 
     void flush() {
@@ -260,7 +263,7 @@ namespace UserInterface {
         break;
 
         case STANDBY:
-          if(globalValues.TimeDate.updated) {
+          if(globalValues.TimeDate.updated || forceUpdateScreen) {
             DRAW( drawDateTimeScreen(); )
           }
         break;
@@ -275,13 +278,30 @@ namespace UserInterface {
       }
     }
 
-    enum EncoderEvent poll() {
+    MenuFunctions getMenuFunction(EncoderEvent EncRetVal) {
+      switch(EncRetVal) {
+        case ENC_NOTHING:
+          return NOTHING;
+        case ENC_BUTTON_PRESSED:
+          return BUTTON_PRESSED;
+        case ENC_BUTTON_HELD:
+          return BUTTON_HELD;
+        case ENC_ROTATE_LEFT:
+          return ROTATE_LEFT;
+        case ENC_ROTATE_RIGHT:
+          return ROTATE_RIGHT;
+        }
+        return NOTHING;
+    }
 
-      EncoderEvent retVal = NOTHING;
+    enum MenuFunctions poll() {
 
-      if(exitConfigMenu) {
-        exitConfigMenu = false;
-        return EXIT;
+      MenuFunctions retVal = NOTHING;
+
+      if(ConfigMenuFkt) {
+        retVal = ConfigMenuFkt;
+        ConfigMenuFkt = NOTHING;
+        return retVal;
       }
 
       switch(screen) {
@@ -292,18 +312,18 @@ namespace UserInterface {
         case STANDBY:
           // break;
         case TEXT:
-          retVal = cEncoder.poll();
+          retVal = getMenuFunction(cEncoder.poll());
           if(retVal == BUTTON_HELD) {
             activateConfigScreen();
-            return retVal;
+            return BUTTON_HELD;
           }
           break;
 
         case VALUE:
-          if(retVal = cEncoder.poll()) {
+          if(retVal = getMenuFunction(cEncoder.poll())) {
             if(retVal == BUTTON_HELD) {
               activateConfigScreen();
-              return retVal;
+              return BUTTON_HELD;
             }
             if(drawValues.setpoint) {
               switch(retVal) {
@@ -374,24 +394,18 @@ namespace UserInterface {
   }
 
   result cleaning(eventMask e, navNode& nav, prompt &item) {
-    Serial.print("action1 event: ");
-    Serial.print(e);
-    Serial.println(", proceed menu");
-    Serial.flush();
-
-    // strcpy(Interface.drawValues.header,"Brewing");
-    // Interface.drawValues.value = &Interface.v;
-    // Interface.drawValues.setpoint = &Interface.s;
-    // Interface.changeScreen(VALUE);
+    ClassMenu::ConfigMenuFkt = FKT_CLEANING;
     return proceed;
   }
 
   result exitMenu(eventMask e, navNode& nav, prompt &item) {
-    ClassMenu::exitConfigMenu = true;
+    ClassMenu::ConfigMenuFkt = EXIT;
+    ClassMenu::forceUpdateScreen = true;
     return proceed;
   }
 
-  bool ClassMenu::exitConfigMenu = false; //static variable
+  MenuFunctions ClassMenu::ConfigMenuFkt = NOTHING; //static variable
+  bool ClassMenu::forceUpdateScreen = true;
 }
 
 #else

@@ -14,12 +14,11 @@
 /******************************************** ClickEncoder ********************************************/
 
   enum EncoderEvent {
-    NOTHING=0,
-    BUTTON_PRESSED,
-    BUTTON_HELD,
-    ROTATE_LEFT,
-    ROTATE_RIGHT,
-    EXIT
+    ENC_NOTHING=0,
+    ENC_BUTTON_PRESSED,
+    ENC_BUTTON_HELD,
+    ENC_ROTATE_LEFT,
+    ENC_ROTATE_RIGHT
   };
 
   template <uint8_t PinA, uint8_t PinB, uint8_t PinBtn>
@@ -56,12 +55,12 @@
 
     enum EncoderEvent poll() {
       encPos += encoder.getValue();
-      EncoderEvent retVal = NOTHING;
+      EncoderEvent retVal = ENC_NOTHING;
 
       if (encPos != oldEncPos) {
         Serial.print("Encoder Value: ");
         Serial.println(encPos);
-        retVal = (encPos > oldEncPos ? ROTATE_RIGHT : ROTATE_LEFT);
+        retVal = (encPos > oldEncPos ? ENC_ROTATE_RIGHT : ENC_ROTATE_LEFT);
         oldEncPos = encPos;
       }
 
@@ -77,11 +76,11 @@
           // VERBOSECASE(ClickEncoder::DoubleClicked)
           case ClickEncoder::Held:
             // Serial.println("Held");
-            retVal = (oldButtonState == BUTTON_HELD ? NOTHING : BUTTON_HELD);
+            retVal = (oldButtonState == ENC_BUTTON_HELD ? ENC_NOTHING : ENC_BUTTON_HELD);
             break;
           case ClickEncoder::Clicked:
             Serial.println("Clicked");
-            retVal = BUTTON_PRESSED;
+            retVal = ENC_BUTTON_PRESSED;
             break;
         }
       }

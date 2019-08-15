@@ -4,6 +4,17 @@
 //==============================================================
 //                  Global Values
 //==============================================================
+
+enum MenuFunctions {
+  NOTHING = 0,
+  BUTTON_PRESSED,
+  BUTTON_HELD,
+  ROTATE_LEFT,
+  ROTATE_RIGHT,
+  FKT_CLEANING,
+  EXIT
+};
+
 struct structGlobalValues{
   double TempSetValue; //PID SetPoint
   // bool   SetPointEditMode;
@@ -43,6 +54,9 @@ struct structConfigValues {
     double Brewing_Duration;
     uint8_t BrewingTempSetpointIncrease;
     double Flush_Duration;
+    double Cleaning_WaitDuration;
+    double Cleaning_FlushDuration;
+    uint8_t Cleaning_NumFlushes;
   } stateMaschine;
 
 } configValues;
@@ -70,6 +84,10 @@ void getConfiguration() {
   globalValues.Pid_Percent      = 0; //&Pid_Percent;
 }
 
+void rebootESP() {
+  ESP.restart();
+}
+
 void saveConfiguration() {
 
   configValues.key        = EEPROM_KEY;
@@ -86,11 +104,9 @@ void removeConfiguration() {
   configValues.key = 0;
   EEPROM.put(0, configValues);
   EEPROM.commit();
+  rebootESP();
 }
 
-void rebootESP() {
-  ESP.restart();
-}
 
 #else
   void getConfiguration() {}
