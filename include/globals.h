@@ -10,6 +10,14 @@ struct structGlobalValues{
   // bool PIDactive;
   double TempValue;    //PID Input
   double Pid_Percent;  //PID OutPut in percent
+  struct {
+    uint8_t hour;
+    uint8_t min;
+    uint8_t wday;
+    uint8_t day;
+    uint8_t month;
+    bool updated;
+  } TimeDate;
 } globalValues;
 
 #define EEPROM_KEY    945487320 //4 bytes
@@ -65,7 +73,9 @@ void getConfiguration() {
 void saveConfiguration() {
 
   configValues.key        = EEPROM_KEY;
-  configValues.TempSetValue  = globalValues.TempSetValue;
+  if(globalValues.TempSetValue > 0.1) {
+    configValues.TempSetValue  = globalValues.TempSetValue;
+  }
 
   EEPROM.put(0, configValues);
   EEPROM.commit();
@@ -77,6 +87,11 @@ void removeConfiguration() {
   EEPROM.put(0, configValues);
   EEPROM.commit();
 }
+
+void rebootESP() {
+  ESP.restart();
+}
+
 #else
   void getConfiguration() {}
   void saveConfiguration() {}

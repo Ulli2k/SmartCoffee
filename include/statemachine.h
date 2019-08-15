@@ -11,8 +11,8 @@
 
 #define SUPPLY_TEMP_SETPOINT_INCREASE             31 // [°C], ggf. gleich PID_GAP_4_BOOST_PARAMETER ??
 #define SUPPLY_DURATION                           26 // [s]
-#define PREINFUSION_DURATION                     3.4 // [s]
-#define PREINFUSION_PUMP_DURATION                1.6 // [s]
+#define PREINFUSION_DURATION                     3.0 // [s]
+#define PREINFUSION_PUMP_DURATION                2.2 // [s]
 #define FLUSH_DURATION                             3 // [s]
 
 enum State {
@@ -169,8 +169,8 @@ public:
         break;
 
       case DONE:
-        if(!PumpSens.isActive())    { newState=HEATING; }
-        if(event == BUTTON_PRESSED) { newState=FLUSH; }
+        if(!PumpSens.isActive())    { newState=FLUSH; }
+        if(event == BUTTON_PRESSED) { newState=HEATING; }
         break;
 
       case FLUSH:
@@ -199,7 +199,8 @@ public:
         PowerLed.setState(0);
         Pump.setState(0);
         Valve.setState(0);
-        Interface.activateValueScreen("STANDBY");
+        //Interface.activateValueScreen("STANDBY");
+        Interface.activateStandbyScreen("Standby");
         break;
 
       case STARTUP:
@@ -213,7 +214,7 @@ public:
         Serial.println("HEATING");
         Pump.setState(0);
         Valve.setState(0);
-        if(_state != STARTUP) { globalValues.TempSetValue -= configValues.stateMaschine.BrewingTempSetpointIncrease; }
+        if(_state > STARTUP && _state < DONE) { globalValues.TempSetValue -= configValues.stateMaschine.BrewingTempSetpointIncrease; }
         Interface.activateValueScreen("Heating", &globalValues.TempValue, "degC",&globalValues.TempSetValue, &globalValues.Pid_Percent);
         break;
 
@@ -256,6 +257,7 @@ public:
         Serial.println("DONE");
         Pump.setState(0);
         Valve.setState(0);
+        globalValues.TempSetValue -= configValues.stateMaschine.BrewingTempSetpointIncrease;
         Interface.activateTextScreen("Done!", "Flush ???");
         break;
 

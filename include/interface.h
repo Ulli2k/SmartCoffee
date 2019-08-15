@@ -4,6 +4,7 @@
 
 #ifdef HAS_INTERFACE
 
+#include <globals.h>
 #include <encoder.h>
 #include <display.h>
 
@@ -36,13 +37,6 @@ namespace UserInterface {
     // {{1,1},{1,0,0}},//titleColor
   };
 
-  // MENU(subMenu,"Sub-Menu",showEvent,anyEvent,noStyle
-  //   ,OP("Sub1",showEvent,anyEvent)
-  //   ,OP("Sub2",showEvent,anyEvent)
-  //   ,OP("Sub3",showEvent,anyEvent)
-  //   ,EXIT("<Back")
-  // );
-
   MENU(subMenu_PID,"PID",doNothing,anyEvent,noStyle
     ,FIELD(configValues.PID.consKp,"Kp","",0,300,1,1,doNothing,noEvent,wrapStyle)
     ,FIELD(configValues.PID.consKi,"Ki","",0,10,0.1,0.01,doNothing,noEvent,wrapStyle)
@@ -57,11 +51,11 @@ namespace UserInterface {
   MENU(subMenu_StateMaschine,"StateMaschine",doNothing,anyEvent,noStyle
     ,FIELD(configValues.stateMaschine.TempMinError,"TempThreshold","C",0,20,1,0,doNothing,noEvent,wrapStyle)
     ,FIELD(configValues.stateMaschine.TempStabilizingTime,"Stabilize","s",0,200,1,0,doNothing,noEvent,wrapStyle)
-    ,FIELD(configValues.stateMaschine.Preinfusion_Duration,"Preinfusion","s",0,60,1,0,doNothing,noEvent,wrapStyle)
-    ,FIELD(configValues.stateMaschine.Preinfusion_PumpDuration,"Preinf.Pump","s",0,10,1,0,doNothing,noEvent,wrapStyle)
-    ,FIELD(configValues.stateMaschine.Brewing_Duration,"Brewing","s",0,60,1,0,doNothing,noEvent,wrapStyle)
+    ,FIELD(configValues.stateMaschine.Preinfusion_Duration,"Preinfusion","s",0,60,1,0.1,doNothing,noEvent,wrapStyle)
+    ,FIELD(configValues.stateMaschine.Preinfusion_PumpDuration,"Preinf.Pump","s",0,10,1,0.1,doNothing,noEvent,wrapStyle)
+    ,FIELD(configValues.stateMaschine.Brewing_Duration,"Brewing","s",0,60,1,0.1,doNothing,noEvent,wrapStyle)
     ,FIELD(configValues.stateMaschine.BrewingTempSetpointIncrease,"BrewingInc","C",0,100,1,0,doNothing,noEvent,wrapStyle)
-    ,FIELD(configValues.stateMaschine.Flush_Duration,"Flush","s",0,20,1,0,doNothing,noEvent,wrapStyle)
+    ,FIELD(configValues.stateMaschine.Flush_Duration,"Flush","s",0,20,1,0.1,doNothing,noEvent,wrapStyle)
     ,EXIT("<Back")
   );
 
@@ -70,8 +64,9 @@ namespace UserInterface {
     ,FIELD(globalValues.TempSetValue,"Temperature","C",0,100,1,0,doNothing,noEvent,wrapStyle)
     ,SUBMENU(subMenu_PID)
     ,SUBMENU(subMenu_StateMaschine)
-    ,OP("Safe Config",saveConfiguration,enterEvent)
+    ,OP("save Config",saveConfiguration,enterEvent)
     ,OP("reset Config",removeConfiguration,enterEvent)
+    ,OP("reboot",rebootESP,enterEvent)
     ,OP("<Back", exitMenu,enterEvent)
   );
 
@@ -94,6 +89,7 @@ namespace UserInterface {
 
   enum InterfaceScreen {
     CONFIG=0,
+    STANDBY,
     TEXT,
     VALUE
   };
@@ -108,6 +104,7 @@ namespace UserInterface {
     double *setpoint;
     double *percent;
     bool setpointEditMode;
+
   } draw_ScreenValues;
 
   class ScreenTypes {
@@ -159,7 +156,13 @@ namespace UserInterface {
     }
 
     void drawMainText(char *text, uint8_t y) {
-      cDisplay.setFontSize(2);
+      cDisplay.setFontSize(3);
+      uint8_t v = GET_FONT_WIDTH(text);
+      cDisplay.u8g2.drawStr( (cDisplay.width-(v))/2 , y, text);
+    }
+
+    void drawText(char *text, uint8_t y) {
+      cDisplay.setFontSize();
       uint8_t v = GET_FONT_WIDTH(text);
       cDisplay.u8g2.drawStr( (cDisplay.width-(v))/2 , y, text);
     }
@@ -172,17 +175,20 @@ namespace UserInterface {
     void clear() {
       drawValues.header[0]        = 0x0;
       drawValues.value            = NULL;
+      drawValues.text[0]          = 0x0;
       drawValues.valueUnit[0]     = 0x0;
       drawValues.setpoint         = NULL;
       drawValues.setpointEditMode = false;
       drawValues.percent          = NULL;
+      // drawValues.lastUpdate       = 0;
+      // drawValues.UpdateInterval   = DEFAULT_UPDATE_INTERVAL;
     }
 
     void drawTextScreen() {
       if(!drawValues.header[0]) return;
       drawHeader(drawValues.header);
 
-      drawMainText(drawValues.text, cDisplay.height - 17);
+      drawText(drawValues.text, cDisplay.height - 17);
     }
 
     void drawValueScreen() {
@@ -202,6 +208,21 @@ namespace UserInterface {
     void drawConfigScreen() {
       drawHeader("Configuration");
       nav.doOutput();
+    }
+
+    void drawDateTimeScreen() {
+      char buffer[12]; //dd.mm.yyyy & hh:mm
+      const char *days[] = {"So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"};
+
+      drawHeader(drawValues.header);
+
+      sprintf(buffer,"%.2d:%.2d",globalValues.TimeDate.hour, globalValues.TimeDate.min);
+      drawMainText(buffer,cDisplay.height-17);
+
+      sprintf(buffer,"%s, %.2d.%.2d",days[globalValues.TimeDate.wday], globalValues.TimeDate.day,globalValues.TimeDate.month);
+      drawText(buffer,cDisplay.height);
+
+      globalValues.TimeDate.updated = false;
     }
   };
 
@@ -238,6 +259,12 @@ namespace UserInterface {
           }
         break;
 
+        case STANDBY:
+          if(globalValues.TimeDate.updated) {
+            DRAW( drawDateTimeScreen(); )
+          }
+        break;
+
         case TEXT:
           DRAW( drawTextScreen(); )
         break;
@@ -262,6 +289,8 @@ namespace UserInterface {
           nav.doInput();
           break;
 
+        case STANDBY:
+          // break;
         case TEXT:
           retVal = cEncoder.poll();
           if(retVal == BUTTON_HELD) {
@@ -328,6 +357,12 @@ namespace UserInterface {
 
     void activateConfigScreen() {
       changeScreen(CONFIG);
+    }
+
+    void activateStandbyScreen(const char* header) {
+      clear();
+      strcpy(drawValues.header,header);
+      changeScreen(STANDBY);
     }
   };
 

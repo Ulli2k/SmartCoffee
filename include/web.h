@@ -3,6 +3,7 @@
 
 #ifdef ESP32
 #include <WiFi.h>
+#include <time.h>
 #else
 #include <ESP8266WiFi.h>
 #endif
@@ -12,16 +13,57 @@
 #include <web_mqtt.h>
 #include <web_server.h>
 #include <web_global.h>
+#ifdef ESP32
+  #include <ESP32Ticker.h>
+#else
+  #define IRAM_ATTR
+  #include <Ticker.h>
+#endif
+
+#define NTP_SERVER            "europe.pool.ntp.org"
+#define GMT_OFFSET_SEC        3600
+#define DAYLIGHT_OFFSET_SEC   3600
 
 class ClassWiFi {
 
 private:
+  Ticker ticker;
+
+  void setupTime() {
+    struct tm timeinfo;
+    configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
+    if(!getLocalTime(&timeinfo)){
+      Serial.println("Failed to obtain time");
+      return;
+    }
+    globalValues.TimeDate.min = 0b111111;
+    staticUpdateTime();
+    Serial.println(&timeinfo, "Local Time: %A, %B %d %Y %H:%M:%S");
+
+    ticker.attach(20, &ClassWiFi::staticUpdateTime);
+  }
 
 public:
+  static void staticUpdateTime() {
+    struct tm timeinfo;
+    if(!getLocalTime(&timeinfo)){
+      Serial.println("Failed to obtain time");
+      return;
+    }
+    if(globalValues.TimeDate.min == timeinfo.tm_min) return;
+    globalValues.TimeDate.hour    = timeinfo.tm_hour;
+    globalValues.TimeDate.min     = timeinfo.tm_min;
+    globalValues.TimeDate.wday    = timeinfo.tm_wday;
+    globalValues.TimeDate.day     = timeinfo.tm_mday;
+    globalValues.TimeDate.month   = timeinfo.tm_mon;
+    globalValues.TimeDate.updated = true;
+  }
+
   bool connect2WLAN(const char* ssid, const char* password) {
     uint8_t wifi_retry=0;
     uint8_t wifi_wait=0;
 
+    //WiFi.waitForConnectResult() != WL_CONNECTED <-- Testen!
     while (!isConnected() && wifi_retry < 2) {
       wifi_wait=0;
       wifi_retry++;
@@ -41,6 +83,7 @@ public:
     }
     if(isConnected()) {
       Serial.print("WiFi IP address "); Serial.println(getIP());
+      setupTime();
       return true;
     } else {
       Serial.println("WiFi failed, proceed offline.");
@@ -97,9 +140,10 @@ typedef noWebInterface noWeb;
 
 
 template <typename WEBconnection>
-class ClassWeb : public ClassWiFi, public ClassOTA, public ClassWebMessages {
+class ClassWeb : public ClassOTA, public ClassWebMessages {
 
   private:
+    ClassWiFi wifi;
     WEBconnection web;
 
   public:
@@ -111,7 +155,7 @@ class ClassWeb : public ClassWiFi, public ClassOTA, public ClassWebMessages {
 
     void initialize() {
 
-      if(!connect2WLAN(ssid, password)) return;
+      if(!wifi.connect2WLAN(ssid, password)) return;
 
       publishOTA();
 
@@ -123,7 +167,7 @@ class ClassWeb : public ClassWiFi, public ClassOTA, public ClassWebMessages {
     }
 
     void poll() {
-      if(!isConnected()) return;
+      if(!wifi.isConnected()) return;
       pollOTA();
       web.poll();
     }
