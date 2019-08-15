@@ -199,9 +199,7 @@ public:
         break;
 
       case FLUSH:
-        if(!PumpSens.isActive())    { newState=HEATING; }
         if(Timer.checking())        { newState=HEATING; }
-        //if(event == BUTTON_PRESSED) { newState=FLUSH; }
         break;
 
       case CLEANING_PREPARE:
