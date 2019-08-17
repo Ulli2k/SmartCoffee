@@ -3,10 +3,12 @@
 
 #include <globals.h>
 
-#define DEFAULT_STANDBY_TEMPERATURE                0  //[°C]
-#define DEFAULT_BREWING_TEMPERATURE               92  //[°C] 92
+#define DEFAULT_POWERON_MAX_TIME                  60 // [min]
 
-#define TEMP_STABELIZING_TIME                     10 // [seconds]
+#define DEFAULT_STANDBY_TEMPERATURE                0 // [°C]
+#define DEFAULT_BREWING_TEMPERATURE               92 // [°C] 92
+
+#define TEMP_STABELIZING_TIME                     60 // [seconds]
 #define TEMP_MIN_ERROR                             1 // [°C]
 
 #define SUPPLY_TEMP_SETPOINT_INCREASE             31 // [°C], ggf. gleich PID_GAP_4_BOOST_PARAMETER ??
@@ -19,11 +21,11 @@
 #define CLEANING_WAIT_DURATION                    10 // [s]
 #define CLEANING_NUMFLUSES                         5 // [-]
 
+
 enum State {
   STANDBY = 0,
   STARTUP,
-  HEATING,
-  READY,
+  HEATING, READY,
   SUPPLY,
   PREINFUSION, PREINFUSION_WAIT,
   BREWING,
@@ -65,18 +67,22 @@ class ClassStateMachine {
 
 private:
 
-  uint8_t _state; //current State of StateMachine
-  bool PowerOnOff;
+  uint8_t   _state;         //current State of StateMachine
+  uint16_t  PowerOnTime;    //[s] safe Time on Powering On the Machine (hour*60+min)
+  bool      PowerOnOff;     //[on, off] Power State
+  bool      StartupFlush;   //[false,true] flush before first Supply
+  int8_t    memory;         //general global Variable
+
   ClassTiming Timer;
-  int8_t memory;
+
   InterfaceType Interface;
-  LedType PowerLed;
-  BuzzerType Buzzer;
-  PowerType Power;
+  LedType       PowerLed;
+  BuzzerType    Buzzer;
+  PowerType     Power;
   PowerSensType PowerSens;
-  PumpType Pump;
-  PumpSensType PumpSens;
-  ValveType Valve;
+  PumpType      Pump;
+  PumpSensType  PumpSens;
+  ValveType     Valve;
 
   bool TempWithinThreshold() {
     if(abs(globalValues.TempSetValue - globalValues.TempValue) <= configValues.stateMaschine.TempMinError) {
@@ -87,7 +93,8 @@ private:
 
 public:
 
-  ClassStateMachine() : _state(STANDBY), memory(0) {
+  ClassStateMachine() : _state(STANDBY), memory(0), StartupFlush(true) {
+    configValues.stateMaschine.MaxPowerOnTime               = DEFAULT_POWERON_MAX_TIME;
     globalValues.TempSetValue                               = DEFAULT_STANDBY_TEMPERATURE;
     configValues.TempSetValue                               = DEFAULT_BREWING_TEMPERATURE;
     configValues.stateMaschine.TempMinError                 = TEMP_MIN_ERROR;
@@ -123,28 +130,21 @@ public:
     Valve.initialize();
 
     changeState(STANDBY);
+    checkPowerOnTime(false);
   }
 
   void poll() {
 
-    uint8_t newState=_state;
+    uint8_t newState = _state;
+
+    if(_state != STANDBY && checkPowerOnTime()) { changeState(STANDBY); return; }
 
     enum MenuFunctions event = Interface.poll();
-    if(event == EXIT) {
-      changeState(_state);
-      return;
-    }
+    if(event == EXIT) { changeState(_state); return; }
 
-    if(PowerSens.updateState(&PowerOnOff)) {
-      Serial.print("POWER: ");Serial.println(PowerOnOff);
-      changeState(PowerOnOff ? STARTUP : STANDBY);
-      return;
-    }
+    if(PowerSens.updateState(&PowerOnOff)) { changeState(PowerOnOff ? STARTUP : STANDBY); return; }
 
-    if(event == FKT_CLEANING) {
-      changeState(PowerOnOff ? CLEANING_PREPARE : STANDBY);
-      return;
-    }
+    if(event == FKT_CLEANING) { changeState(PowerOnOff ? CLEANING_PREPARE : STANDBY); return; }
 
     switch(_state) {
 
@@ -160,7 +160,7 @@ public:
           if(!Timer.isActive()) {
             Timer.startTimer(configValues.stateMaschine.TempStabilizingTime);
           } else {
-            if(Timer.checking())      { newState=READY; }
+            if(Timer.checking())      { newState = (StartupFlush? FLUSH : READY); }
           }
         }
         if(PumpSens.isActive())     { newState=SUPPLY; }
@@ -259,11 +259,12 @@ public:
         globalValues.TempSetValue = configValues.TempSetValue;
         Serial.print("TempSetValue: ");Serial.println(globalValues.TempSetValue);
         Buzzer.beep(2);
+        checkPowerOnTime(false);
+        StartupFlush = true;
         break;
 
       case HEATING:
         Serial.println("HEATING");
-        // memory = 0;
         Pump.setState(0);
         Valve.setState(0);
         if(memory && _state < CLEANING_PREPARE) { globalValues.TempSetValue -= memory;}
@@ -281,6 +282,7 @@ public:
         Serial.println("SUPPLY");
         memory = configValues.stateMaschine.BrewingTempSetpointIncrease;
         globalValues.TempSetValue += configValues.stateMaschine.BrewingTempSetpointIncrease;
+        checkPowerOnTime(false);
         break;
 
       case PREINFUSION:
@@ -320,6 +322,7 @@ public:
       case FLUSH:
         Serial.println("FLUSH");
         Interface.activateTextScreen("Flushing...", "!! HOT !!");
+        if(StartupFlush) StartupFlush = false;
         Timer.startTimer(configValues.stateMaschine.Flush_Duration);
         Valve.setState(1);
         Pump.setState(1);
@@ -331,6 +334,7 @@ public:
         Pump.setState(0);
         Interface.activateTextScreen("Cleaning...", "preparation...");
         memory = configValues.stateMaschine.Cleaning_NumFlushes;
+        checkPowerOnTime(false);
         break;
 
       case CLEANING:
@@ -371,6 +375,19 @@ public:
     }
 
     _state = newState;
+  }
+
+  bool checkPowerOnTime(bool check=true) {
+
+    uint16_t now = globalValues.TimeDate.hour*60 + globalValues.TimeDate.min;
+    if(!check) {
+      PowerOnTime = now;
+    } else {
+      if((now - PowerOnTime) >= configValues.stateMaschine.MaxPowerOnTime) {
+        return true;
+      }
+    }
+    return false;
   }
 
   void PowerSwitch(bool on) {

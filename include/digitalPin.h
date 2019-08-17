@@ -29,7 +29,7 @@ public:
 /******************************************** SimplePin ********************************************/
 #define DEBOUNCE_TIME			100 // [ms] for updateState function
 #define BEEP_DURATION			100 // [ms]
-#define BEEP_DUTYCYCLE		100 // [%]
+#define BEEP_DUTYCYCLE		 50 // [%]
 
 template <uint8_t Pin1, bool output=true, bool activeLow=false, uint16_t freq=0, uint8_t channel=0>
 class simplePin {

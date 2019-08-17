@@ -37,26 +37,27 @@ struct structConfigValues {
   double TempSetValue; //PID SetPoint
 
   struct {
-    double consKp;
-    double consKi;
-    double consKd;
+    double  consKp;
+    double  consKi;
+    double  consKd;
     uint8_t Gap4BoostParameter;
-    double boostKp;
-    double boostKi;
-    double boostKd;
+    double  boostKp;
+    double  boostKi;
+    double  boostKd;
   } PID;
 
   struct {
-    uint8_t TempMinError;
-    uint8_t TempStabilizingTime;
-    double Preinfusion_Duration;
-    double Preinfusion_PumpDuration;
-    double Brewing_Duration;
-    uint8_t BrewingTempSetpointIncrease;
-    double Flush_Duration;
-    double Cleaning_WaitDuration;
-    double Cleaning_FlushDuration;
-    uint8_t Cleaning_NumFlushes;
+    uint8_t   MaxPowerOnTime;
+    uint8_t   TempMinError;
+    uint8_t   TempStabilizingTime;
+    double    Preinfusion_Duration;
+    double    Preinfusion_PumpDuration;
+    double    Brewing_Duration;
+    uint8_t   BrewingTempSetpointIncrease;
+    double    Flush_Duration;
+    double    Cleaning_WaitDuration;
+    double    Cleaning_FlushDuration;
+    uint8_t   Cleaning_NumFlushes;
   } stateMaschine;
 
 } configValues;
