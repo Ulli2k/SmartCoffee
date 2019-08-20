@@ -251,6 +251,7 @@ public:
         Valve.setState(0);
         //Interface.activateValueScreen("STANDBY");
         Interface.activateStandbyScreen("Standby");
+        pushValueToInterface("Power", "off");
         break;
 
       case STARTUP:
@@ -261,6 +262,7 @@ public:
         Buzzer.beep(2);
         checkPowerOnTime(false);
         StartupFlush = true;
+        pushValueToInterface("Power", "on");
         break;
 
       case HEATING:

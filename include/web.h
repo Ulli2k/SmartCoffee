@@ -10,7 +10,7 @@
 #include <WiFiClient.h>
 #include <ArduinoOTA.h>
 
-#include <web_mqtt.h>
+// #include <web_mqtt.h>
 #include <web_server.h>
 #include <web_global.h>
 #ifdef ESP32
@@ -55,7 +55,7 @@ public:
     globalValues.TimeDate.min     = timeinfo.tm_min;
     globalValues.TimeDate.wday    = timeinfo.tm_wday;
     globalValues.TimeDate.day     = timeinfo.tm_mday;
-    globalValues.TimeDate.month   = timeinfo.tm_mon;
+    globalValues.TimeDate.month   = timeinfo.tm_mon+1;
     globalValues.TimeDate.updated = true;
   }
 
@@ -153,6 +153,11 @@ class ClassWeb : public ClassOTA, public ClassWebMessages {
       web.send(topic,msg);
     }
 
+    void postPowerState(bool on) {
+      if(!wifi.isConnected()) return;
+      web.postPowerState(on);
+    }
+
     void initialize() {
 
       if(!wifi.connect2WLAN(ssid, password)) return;
@@ -164,6 +169,8 @@ class ClassWeb : public ClassOTA, public ClassWebMessages {
       // } else {
       // }
       web.initialize();
+
+      web.postPowerState(false);
     }
 
     void poll() {

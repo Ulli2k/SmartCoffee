@@ -1,7 +1,6 @@
 #ifndef __WEB_SERVER__
 #define __WEB_SERVER__
 
-// #include <web.h>
 #ifdef ESP32
 #include <WebServer.h>
 #else
@@ -9,6 +8,10 @@
 #endif
 #include "web_server_index.h" //Our HTML webpage contents with javascripts
 #include <web_global.h>
+
+#ifdef FHEM_SERVER_URL
+#include <FHEM.h>
+#endif
 
 class ClassWebServer {
 
@@ -19,9 +22,17 @@ private:
   ESP8266WebServer server; //Server on port 80
   #endif
 
+  #ifdef FHEM_SERVER_URL
+  FHEM fhem;
+  #endif
+
 public:
 
-  ClassWebServer() : server(80) { }
+  ClassWebServer() : server(80)
+                              #ifdef FHEM_SERVER_URL
+                              , fhem(FHEM_SERVER_URL)
+                              #endif
+                             { }
 
   void initialize() {
 
@@ -37,6 +48,12 @@ public:
 
   void poll() {
     server.handleClient();          //Handle client requests
+  }
+
+  void postPowerState(bool on) {
+    #ifdef FHEM_SERVER_URL
+    fhem.LoadFromServer(on ? FHEM_POST_MESSAGE_ON : FHEM_POST_MESSAGE_OFF);
+    #endif
   }
 
   void handleRoot() {

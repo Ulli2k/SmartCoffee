@@ -153,15 +153,14 @@ void setValueByInterface(String name, String value) {
   if(name == "Power") {
     StateMachine.PowerSwitch(value == "on" ? true : false);
   }
-//
-//   } else if(name == "startBrewing") {
-//     StateMachine.startBrewing();
-//
-//   } else if(name == "SetPoint") {
-//     configValues.TempSetValue = value.toFloat();
-//     if(configValues.TempSetValue>PID_MAX_SETPOINT) configValues.TempSetValue = PID_MAX_SETPOINT;
-//   }
 }
+
+void pushValueToInterface (String name, String value) {
+  if(name == "Power") {
+    Web.postPowerState(value == "on" ? true : false);
+  }
+}
+
 #endif
 
 //==============================================================

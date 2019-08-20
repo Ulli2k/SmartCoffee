@@ -62,6 +62,9 @@ struct structConfigValues {
 
 } configValues;
 
+// extern String getValueForInterface  (String name);
+extern void   setValueByInterface   (String name, String value);
+extern void   pushValueToInterface (String name, String value);
 
 #ifdef ESP32
 #define EEPROM_SIZE     1024
@@ -107,7 +110,6 @@ void removeConfiguration() {
   EEPROM.commit();
   rebootESP();
 }
-
 
 #else
   void getConfiguration() {}
