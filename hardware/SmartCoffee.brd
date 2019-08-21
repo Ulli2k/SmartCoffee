@@ -216,6 +216,28 @@
 <text x="29.7206" y="21.4" size="1.2" layer="122" rot="SMR0" align="center">HV</text>
 <text x="64.6576" y="21.6256" size="2" layer="122" rot="SMR315" align="center">SmartCoffee</text>
 <text x="65.7798" y="20.1016" size="2" layer="121" rot="SR45" align="center">SmartCoffee</text>
+<text x="48.9966" y="41.5036" size="1" layer="25" rot="R90" align="top-left">VCC</text>
+<text x="51.689" y="41.5036" size="1" layer="25" rot="R90" align="top-left">Header_SSR</text>
+<text x="58.928" y="41.3258" size="1" layer="25" rot="R90" align="top-left">VCC</text>
+<text x="61.341" y="41.402" size="1" layer="25" rot="R90" align="top-left">GND</text>
+<text x="68.7832" y="41.4782" size="1" layer="25" rot="R90" align="top-left">GND</text>
+<text x="70.8406" y="41.4782" size="1" layer="25" rot="R90" align="top-left">Signal</text>
+<text x="73.533" y="41.5036" size="1" layer="25" rot="R90" align="top-left">3v3</text>
+<text x="80.5942" y="41.2496" size="1" layer="25" rot="R90" align="top-left">3v3</text>
+<text x="83.0326" y="41.2242" size="1" layer="25" rot="R90" align="top-left">Signal</text>
+<text x="85.7758" y="41.5798" size="1" layer="25" rot="R90" align="top-left">GND</text>
+<text x="49.5046" y="-0.889" size="1" layer="25" rot="R90" align="top-right">VCC</text>
+<text x="52.0446" y="-0.7874" size="1" layer="25" rot="R90" align="top-right">Power_LED</text>
+<text x="58.4454" y="-0.9906" size="1" layer="25" rot="R90" align="top-right">Power_Button</text>
+<text x="61.087" y="-0.9652" size="1" layer="25" rot="R90" align="top-right">GND</text>
+<text x="77.1652" y="-0.9144" size="1" layer="25" rot="R90" align="top-right">GND</text>
+<text x="67.0306" y="-1.2446" size="1" layer="25" rot="R90" align="top-right">3v3</text>
+<text x="84.8106" y="-0.9906" size="1" layer="25" rot="R90" align="top-right">VCC</text>
+<text x="69.6468" y="-1.2446" size="1" layer="25" rot="R90" align="top-right">Rotary_Button</text>
+<text x="72.1106" y="-1.2192" size="1" layer="25" rot="R90" align="top-right">Rotary_B</text>
+<text x="74.7268" y="-1.016" size="1" layer="25" rot="R90" align="top-right">Rotary_A</text>
+<text x="79.7814" y="-1.0922" size="1" layer="25" rot="R90" align="top-right">SDA</text>
+<text x="82.4484" y="-0.762" size="1" layer="25" rot="R90" align="top-right">SCL</text>
 </plain>
 <libraries>
 <library name="LowPowerLab">
@@ -2284,16 +2306,16 @@ Please make sure your boards conform to these design rules.</description>
 <contactref element="LV_SUPPLY" pad="P$1"/>
 <contactref element="U$3" pad="14"/>
 <polygon width="0.381" layer="16">
-<vertex x="104.013" y="-3.3274"/>
-<vertex x="104.013" y="44.0182"/>
-<vertex x="34.5" y="43.8658"/>
-<vertex x="34.5" y="-3.4036"/>
+<vertex x="104.0892" y="-12.9032"/>
+<vertex x="103.9368" y="51.5112"/>
+<vertex x="34.4238" y="51.3588"/>
+<vertex x="34.5762" y="-12.9794"/>
 </polygon>
 <polygon width="0.381" layer="1">
-<vertex x="102.8192" y="40.8432"/>
-<vertex x="102.4382" y="-1.9304"/>
-<vertex x="34.5" y="-3.0988"/>
-<vertex x="34.5" y="40.5638"/>
+<vertex x="103.1748" y="51.4604"/>
+<vertex x="103.2002" y="-12.5222"/>
+<vertex x="34.5254" y="-13.2334"/>
+<vertex x="34.8556" y="51.181"/>
 </polygon>
 <via x="63.754" y="25.2984" extent="1-16" drill="0.3302"/>
 <via x="54.8132" y="26.9748" extent="1-16" drill="0.3302"/>
