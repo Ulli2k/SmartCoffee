@@ -27,7 +27,7 @@ public:
 };
 
 /******************************************** SimplePin ********************************************/
-#define DEBOUNCE_TIME			500 // [ms] for updateState function
+#define DEBOUNCE_TIME			100 // [ms] for updateState function
 #define BEEP_DURATION			100 // [ms]
 #define BEEP_DUTYCYCLE		 50 // [%]
 
