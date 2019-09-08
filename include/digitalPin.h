@@ -27,7 +27,7 @@ public:
 };
 
 /******************************************** SimplePin ********************************************/
-#define DEBOUNCE_TIME			100 // [ms] for updateState function
+#define DEBOUNCE_TIME			500 // [ms] for updateState function
 #define BEEP_DURATION			100 // [ms]
 #define BEEP_DUTYCYCLE		 50 // [%]
 
@@ -87,10 +87,13 @@ public:
 	bool updateState(bool *oldState) {
 		bool s = getState();
 		bool retVal = false;
-		if(lastState != s && s) {
-			*oldState = !(*oldState);
-			retVal = true;
-			delay(DEBOUNCE_TIME); //Debounce
+		if(lastState != s && s) { //state change and state=HIGH
+      delay(DEBOUNCE_TIME); //Debounce
+      s = getState();
+      if(s) { // filter noise
+        *oldState = !(*oldState); //save new state
+			  retVal = true;
+      }
 		}
 		lastState = s;
 		return retVal;
