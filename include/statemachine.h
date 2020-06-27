@@ -35,12 +35,14 @@ enum State {
 };
 
 class ClassTiming {
-  long unsigned int ms;
-  long unsigned int time_ms;
-  bool active;
 
 public:
+  bool active;
+  long unsigned int ms;
+  long unsigned int time_ms;
+
   ClassTiming() : active(0), ms(0), time_ms(0) {}
+
   double leftSeconds;
   double setSeconds;
   double percent;
@@ -67,11 +69,8 @@ class ClassStateMachine {
 
 private:
 
-  uint8_t   _state;         //current State of StateMachine
   uint16_t  PowerOnTime;    //[s] safe Time on Powering On the Machine (hour*60+min)
   bool      PowerOnOff;     //[on, off] Power State
-  bool      StartupFlush;   //[false,true] flush before first Supply
-  int8_t    memory;         //general global Variable
 
   ClassTiming Timer;
 
@@ -92,6 +91,9 @@ private:
   }
 
 public:
+  uint8_t   _state;         //current State of StateMachine
+  int8_t    memory;         //general global Variable
+  bool      StartupFlush;   //[false,true] flush before first Supply
 
   ClassStateMachine() : _state(STANDBY), memory(0), StartupFlush(true) {
     configValues.stateMaschine.MaxPowerOnTime               = DEFAULT_POWERON_MAX_TIME;
@@ -223,11 +225,10 @@ public:
         break;
 
       case CLEANING_DONE:
-        if(!PumpSens.isActive())    { newState=HEATING; }
+        if(!PumpSens.isActive())    { newState=FLUSH; }
         if(event == BUTTON_PRESSED) { newState=CLEANING_FLUSH; }
         break;
     }
-
 
     if(newState!=_state) {
       changeState(newState);
@@ -372,7 +373,7 @@ public:
         Serial.println("CLEANING_DONE");
         Valve.setState(0);
         Pump.setState(0);
-        Interface.activateTextScreen("Cleaning...", "Done...Flush!");
+        Interface.activateTextScreen("Cleaning...", "clean basket...Flush!");
         break;
     }
 

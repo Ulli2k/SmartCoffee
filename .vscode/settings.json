@@ -1,0 +1,6 @@
+{
+    "terminal.integrated.env.linux": {
+        "PATH": "/home/ulli/.platformio/penv/bin:/home/ulli/.platformio/penv:/home/ulli/bin:/home/ulli/.local/bin:/home/ulli/perl5/bin:/home/ulli/bin:/home/ulli/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "PLATFORMIO_CALLER": "vscode"
+    }
+}
