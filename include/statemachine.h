@@ -6,19 +6,19 @@
 #define DEFAULT_POWERON_MAX_TIME                  60 // [min]
 
 #define DEFAULT_STANDBY_TEMPERATURE                0 // [°C]
-#define DEFAULT_BREWING_TEMPERATURE               92 // [°C] 92
+#define DEFAULT_BREWING_TEMPERATURE               94 // [°C] 92
 
 #define TEMP_STABELIZING_TIME                     60 // [seconds]
 #define TEMP_MIN_ERROR                             1 // [°C]
 
 #define SUPPLY_TEMP_SETPOINT_INCREASE             31 // [°C], ggf. gleich PID_GAP_4_BOOST_PARAMETER ??
 #define SUPPLY_DURATION                           24 // [s]
-#define PREINFUSION_DURATION                     3.0 // [s]
+#define PREINFUSION_DURATION                       2 // [s]
 #define PREINFUSION_PUMP_DURATION                2.3 // [s]
 #define FLUSH_DURATION                           1.4 // [s]
 
-#define CLEANING_FLUSH_DURATION                  2.0 // [s]
-#define CLEANING_WAIT_DURATION                    10 // [s]
+#define CLEANING_FLUSH_DURATION                  4.0 // [s]
+#define CLEANING_WAIT_DURATION                    30 // [s]
 #define CLEANING_NUMFLUSES                         5 // [-]
 
 
@@ -246,10 +246,10 @@ public:
         memory = 0;
         globalValues.TempSetValue = DEFAULT_STANDBY_TEMPERATURE;
         Serial.print("TempSetValue: ");Serial.println(globalValues.TempSetValue);
-        Power.setState(0);
-        PowerLed.setState(0);
         Pump.setState(0);
         Valve.setState(0);
+        Power.setState(0);
+        PowerLed.setState(0);
         //Interface.activateValueScreen("STANDBY");
         Interface.activateStandbyScreen("Standby");
         pushValueToInterface("Power", "off");

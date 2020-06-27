@@ -14,16 +14,16 @@ class ArduinoPins {
 	bool activeLow;	// true -> the button connects the input pin to GND when pressed.
 	uint8_t channel;
 public:
-	ArduinoPins(uint8_t p, bool aLow) 									{ activeLow=aLow; pin=p; }
-  inline void setOutput()  														{ setLow(); pinMode(pin,OUTPUT); }
-	inline void setPWM(uint16_t freq, uint8_t _channel) { channel = _channel; ledcSetup(channel, freq, 8 /*resolution*/);	ledcAttachPin(pin, channel); ledcWriteTone(channel, freq); setDutyCycle(0); }
+	ArduinoPins(uint8_t p, bool aLow) 							{ activeLow=aLow; pin=p; }
+  	inline void setOutput()  									{ setLow(); pinMode(pin,OUTPUT); }
+	inline void setPWM(uint16_t freq, uint8_t _channel) 		{ channel = _channel; ledcSetup(channel, freq, 8 /*resolution*/);	ledcAttachPin(pin, channel); ledcWriteTone(channel, freq); setDutyCycle(0); }
 	inline void setDutyCycle(uint8_t dutyCycle) 				{ ledcWrite(channel, (uint8_t)(255 * (dutyCycle/100.))); }
-	inline void setInput(bool pullUp)										{ pinMode(pin, (pullUp?INPUT_PULLUP:INPUT) ); }
-  inline void setInput()    													{ pinMode(pin,INPUT); }
-  inline void setHigh()     													{ digitalWrite(pin,(activeLow?LOW:HIGH)); }
-  inline void setLow()      													{ digitalWrite(pin,(activeLow?HIGH:LOW)); }
-	inline void setState (bool on)											{ if(on) { setHigh(); } else { setLow(); } }
-  inline bool getState() 									    				{ return (activeLow?(digitalRead(pin)==LOW):(digitalRead(pin)==HIGH)); }
+	inline void setInput(bool pullUp)							{ pinMode(pin, (pullUp?INPUT_PULLUP:INPUT) ); }
+  	inline void setInput()    									{ pinMode(pin,INPUT); }
+  	inline void setHigh()     									{ digitalWrite(pin,(activeLow?LOW:HIGH)); }
+  	inline void setLow()      									{ digitalWrite(pin,(activeLow?HIGH:LOW)); }
+	inline void setState (bool on)								{ if(on) { setHigh(); } else { setLow(); } }
+  	inline bool getState() 									    { return (activeLow?(digitalRead(pin)==LOW):(digitalRead(pin)==HIGH)); }
 };
 
 /******************************************** SimplePin ********************************************/
@@ -45,7 +45,8 @@ public:
 
 	void initialize() {
     if(output) {
-		    dPin.setOutput();
+		dPin.setOutput();
+		dPin.setState(false);
     } else {
         dPin.setInput(activeLow);
 				lastState = dPin.getState();

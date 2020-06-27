@@ -172,7 +172,7 @@ void pushValueToInterface (String name, String value) {
 //                  SETUP
 //==============================================================
 void setup(void){
-
+  
   // Serial Debug Output
   Serial.begin(115200);
   // while (!Serial); //if just the the basic function, must connect to a computer
@@ -193,6 +193,7 @@ void setup(void){
 #endif
 
   // PID
+  Pid_Output = 0;
   Pid.initialize(PID_CALC_PERIOD, PID_OUTPUT_LIMIT);
   // Web.send("test","hallo");
 
