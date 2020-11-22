@@ -206,8 +206,7 @@ namespace UserInterface {
     }
 
     void drawValueScreen() {
-      char str[5];
-      uint8_t i;
+      
       if(!drawValues.header[0]) return;
       drawHeader(drawValues.header);
 

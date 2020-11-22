@@ -16,6 +16,7 @@ enum MenuFunctions {
 };
 
 struct structGlobalValues{
+  bool standby;
   double TempSetValue; //PID SetPoint
   // bool   SetPointEditMode;
   // bool PIDactive;

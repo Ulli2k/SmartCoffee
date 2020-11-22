@@ -6,8 +6,8 @@
 
 enum INTERFACETYPE { MQTT, WEBPAGE };
 
-const char ssid[]     = "";
-const char password[] = "";
+const char ssid[]     = "Dahoam";
+const char password[] = "04006047790439800059";
 
 #define FHEM_SERVER_URL                "http://192.168.188.42:8083/fhem"
 //#define FHEM_POST_MESSAGE_ON           "attr notify_SmartCoffee disable 1;set SmartCoffee on;attr notify_SmartCoffee disable 0"

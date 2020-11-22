@@ -15,6 +15,7 @@ public:
   void initialize() {
     PWM_WindowStartTime = millis();
     dOutput.initialize();
+    dOutput.setState(HIGH); delay(100); dOutput.setState(LOW); // short toggle
   }
 
   void poll(double currentWindowPosition) {

@@ -12,7 +12,7 @@
 #define TEMP_MIN_ERROR                             1 // [°C]
 
 #define SUPPLY_TEMP_SETPOINT_INCREASE             31 // [°C], ggf. gleich PID_GAP_4_BOOST_PARAMETER ??
-#define SUPPLY_DURATION                           24 // [s]
+#define SUPPLY_DURATION                           23 // [s]
 #define PREINFUSION_DURATION                       2 // [s]
 #define PREINFUSION_PUMP_DURATION                2.3 // [s]
 #define FLUSH_DURATION                           1.4 // [s]
@@ -97,6 +97,7 @@ public:
 
   ClassStateMachine() : _state(STANDBY), memory(0), StartupFlush(true) {
     configValues.stateMaschine.MaxPowerOnTime               = DEFAULT_POWERON_MAX_TIME;
+    globalValues.standby                                    = true;
     globalValues.TempSetValue                               = DEFAULT_STANDBY_TEMPERATURE;
     configValues.TempSetValue                               = DEFAULT_BREWING_TEMPERATURE;
     configValues.stateMaschine.TempMinError                 = TEMP_MIN_ERROR;
@@ -250,12 +251,13 @@ public:
         Valve.setState(0);
         Power.setState(0);
         PowerLed.setState(0);
-        //Interface.activateValueScreen("STANDBY");
         Interface.activateStandbyScreen("Standby");
         pushValueToInterface("Power", "off");
+        globalValues.standby=true;
         break;
 
       case STARTUP:
+        globalValues.standby=false;
         PowerLed.setState(1);
         Power.setState(1);
         globalValues.TempSetValue = configValues.TempSetValue;

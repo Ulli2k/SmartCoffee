@@ -261,9 +261,15 @@ class ClassWeb : public ClassOTA, public ClassWebMessages {
     }
 
     void poll() {
-      if(!wifi.isConnected()) initialize();
-      pollOTA();
       web.poll();
+      pollOTA();
+    }
+
+    void checkConnection() {
+      if(!wifi.isConnected()) { 
+        initialize();
+        web.postPowerState(false);
+      }
     }
 };
 
