@@ -123,9 +123,15 @@ ClassStateMachine<MenuType,LEDType,BuzzerType,PowerType,PowerSensType,PumpType,P
 #define HAS_WEB
 #ifdef HAS_WEB
 #include <web.h>
+#define WLAN_PERIODIC_CONNECTION_CHECK    60*5 //sec
 typedef ClassWebServer WebConnection;
 // typedef ClassMQTT WebConnection;
 ClassWeb</*noWeb*/WebConnection> Web;
+
+Ticker checkWLAN;
+static void staticCheckWlan() {
+  if(globalValues.standby) Web.checkConnection();
+}
 
 // String getValueForInterface(String name) {
 //
@@ -190,6 +196,7 @@ void setup(void){
 #ifdef HAS_WEB
   // Web Interface
   Web.initialize();
+  checkWLAN.attach(WLAN_PERIODIC_CONNECTION_CHECK, &staticCheckWlan);
 #endif
 
   // PID
